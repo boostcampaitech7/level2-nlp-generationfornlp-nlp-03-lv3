@@ -1,33 +1,20 @@
-## 2. 프로젝트 구조
+# 🔥 네이버 AI Tech NLP 3조 The AIluminator 🌟
+## Level 3 Generation for NLP Project : 한국어 수능 시험 문제 풀이 모델
+
+# Installation and Quick Start
+**Step 1.** 프로젝트에 필요한 모든 dependencies는 `requirements.txt`에 있고, 이에 대한 가상환경을 생성해서 프로젝트를 실행
 ```sh
-.
-├── model
-│   ├── fine_tune_gnn.py
-│   ├── fine_tune_sts.py
-│   └── SimCSE.py
-├── preprocessing
-│   ├── modeling
-│   │   └── Clustering.ipynb
-│   ├── DataCleaning.ipynb
-│   ├── EDA.ipynb
-│   ├── v1_downsampling.ipynb
-│   ├── v2_augmentation_biassed.ipynb
-│   ├── v3_augmentation_uniform.ipynb
-│   └── v4_augmentation_spellcheck.ipynb
-├── resources
-│   ├── log
-│   └── raw
-│       ├── dev.csv
-│       ├── sample_submission.csv
-│       ├── test.csv
-│       └── train.csv
-├── utils
-│   ├── data_module.py
-│   ├── ensemble_module.py
-│   └── helpers.py
-├── inference.py
-├── run_ensemble.py
-├── train_graph.py
-├── train.py
-├── train_unsup_CL.py
+# 가상환경 만들기
+$ python -m venv .venv
+
+# 가상환경 켜기
+$ . .venv/bin/activate
+
+# 제공되는 서버 환경에 따라 선택적 사용
+$ export TMPDIR=/data/ephemeral/tmp 
+$ mkdir -p $TMPDIR
+
+# 필요 라이브러리 설치
+$ pip install --upgrade pip
+$ pip install -r requirements.txt
 ```
