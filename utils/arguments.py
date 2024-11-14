@@ -12,19 +12,23 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="beomi/gemma-ko-2b",
+        default="LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct",
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
-            "baseline : beomi/gemma-ko-2b / LG: LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct"
+            "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
         },
     )
     quantization: bool = field(
         default=False,
-        metadata={"help": "QLoRA(4bit) 사용할지 안할지"},
+        metadata={"help": "QLoRA(4bit) 사용할지 안할지, 만약 사용한다면 optim 수정, 대신 학습 속도가 느려짐"},
     )
-    reload: bool = field(
-        default=False,
-        metadata={"help": "기본적으로 LoRA를 사용했다는 것을 가정해서 불러옴"},
+    lora_r: int = field(
+        default=8,
+        metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
+    )
+    lora_alpha: int = field(
+        default=16,
+        metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
 
 
@@ -148,7 +152,7 @@ class OurTrainingArguments(SFTConfig):
     )
     # Optimizer 설정
     optim: str = field(
-        default="adamw_torch",
+        default="paged_adamw_8bit",
         metadata={
             "help": "옵티마이저 설정, 다른 옵티마이저 확인을 위해 아래 url에서 OptimizerNames 확인"
             "Default : adamw_torch / QLoRA 사용시 : paged_adamw_8bit"

@@ -1,8 +1,7 @@
 # My custom
 lightning_logs/
 mlruns/
-resources/
-resources/outputs_gemma/
+resources/checkpoint/
 .idea/
 .DS_Store
 *.pdf

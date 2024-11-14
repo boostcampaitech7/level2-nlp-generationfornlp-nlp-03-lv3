@@ -1,6 +1,6 @@
 import pandas as pd
 from ast import literal_eval
-from datasets import Dataset, DatasetDict
+from datasets import Dataset
 
 
 def from_processed(dir: str):
@@ -52,7 +52,6 @@ class CausalLMDataModule:
             desc="Tokenizing",
         )
         tokenized_dataset = tokenized_dataset.train_test_split(test_size=0.1, seed=104)
-        tokenized_dataset = tokenized_dataset.filter(lambda x: len(x["input_ids"]) <= 1024)
         train_dataset = tokenized_dataset["train"]
         eval_dataset = tokenized_dataset["test"]
         return train_dataset, eval_dataset

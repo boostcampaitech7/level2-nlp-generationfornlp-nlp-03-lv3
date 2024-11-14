@@ -57,11 +57,6 @@ def main():
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
     training_args.output_dir = training_args.output_dir + model_args.model_name_or_path
 
-    # 학습 파라미터 로깅
-    logger.info(f"Model is from {model_args.model_name_or_path}")
-    logger.info(f"Output_dir is {training_args.output_dir}")
-    logger.info(f"Data is from {data_args.dataset_name}")
-
     # 토크나이저 불러오기
     tokenizer = AutoTokenizer.from_pretrained(
         model_args.model_name_or_path,
@@ -78,30 +73,26 @@ def main():
     logger.info(f"min token length: {min(train_dataset_token_lengths)}")
     logger.info(f"avg token length: {np.mean(train_dataset_token_lengths)}")
 
-    # QLoRA 사용할지 / Reload 할지
+    # QLoRA 사용할지
     if model_args.quantization:
-        if model_args.reload:
-            model = AutoPeftModelForCausalLM.from_pretrained(model_args.model_name_or_path, trust_remote_code=True)
-        else:
-            quantization_config = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_use_double_quant=True,
-                bnb_4bit_compute_dtype=torch.bfloat16,
-            )
-            model = AutoModelForCausalLM.from_pretrained(
-                model_args.model_name_or_path,
-                trust_remote_code=True,
-                torch_dtype=torch.bfloat16,
-                quantization_config=quantization_config,
-            )
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+        )
+        model = AutoModelForCausalLM.from_pretrained(
+            model_args.model_name_or_path,
+            trust_remote_code=True,
+            torch_dtype=torch.bfloat16,
+            quantization_config=quantization_config,
+        )
     else:
-        if model_args.reload:
-            model = AutoPeftModelForCausalLM.from_pretrained(model_args.model_name_or_path, trust_remote_code=True)
-        else:
-            model = AutoModelForCausalLM.from_pretrained(
-                model_args.model_name_or_path, trust_remote_code=True, torch_dtype=torch.bfloat16
-            )
+        model = AutoModelForCausalLM.from_pretrained(
+            model_args.model_name_or_path,
+            torch_dtype=torch.float16,
+            trust_remote_code=True,
+        )
 
     # LoRA 설정
     if model_args.quantization:
@@ -109,23 +100,17 @@ def main():
     else:
         modules = find_linear_names(model, "lora")
     lora_config = LoraConfig(
-        r=6,
-        lora_alpha=8,
-        # r=32,
-        # lora_alpha=64,
+        r=model_args.lora_r,
+        lora_alpha=model_args.lora_alpha,
         lora_dropout=0.1,
         bias="none",
-        target_modules=["q_proj", "k_proj"],
-        # target_modules=modules,
+        target_modules=modules,
         task_type="CAUSAL_LM",
         modules_to_save=None,
     )
 
     # 모델 불러오기
-    if not model_args.reload:
-        model = get_peft_model(model, lora_config)
-    else:
-        model = model
+    model = get_peft_model(model, lora_config)
     model.print_trainable_parameters()
     logger.info(model)
     total_params = sum(p.numel() for p in model.parameters())
