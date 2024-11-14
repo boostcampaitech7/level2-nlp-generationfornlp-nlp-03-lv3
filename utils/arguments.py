@@ -23,11 +23,11 @@ class ModelArguments:
         metadata={"help": "QLoRA(4bit) 사용할지 안할지, 만약 사용한다면 optim 수정, 대신 학습 속도가 느려짐"},
     )
     lora_r: int = field(
-        default=8,
+        default=16,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     lora_alpha: int = field(
-        default=16,
+        default=32,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
 
@@ -71,7 +71,7 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "체크포인트와 모델 출력을 저장할 디렉터리 경로"},
     )
     max_seq_length: int = field(
-        default=1024,
+        default=2048,
         metadata={
             "help": "The maximum total input sequence length after tokenization. Sequences longer "
             "than this will be truncated, sequences shorter will be padded."

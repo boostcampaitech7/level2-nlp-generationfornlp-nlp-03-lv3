@@ -97,17 +97,18 @@ def main():
             trust_remote_code=True,
         )
 
-    # LoRA 설정
+    # LoRA 설정 : 모든 모듈 쓰면 터짐..
     if model_args.quantization:
         modules = find_linear_names(model, "qlora")
     else:
         modules = find_linear_names(model, "lora")
+
     lora_config = LoraConfig(
         r=model_args.lora_r,
         lora_alpha=model_args.lora_alpha,
         lora_dropout=0.1,
         bias="none",
-        target_modules=modules,
+        target_modules=["q_proj", "k_proj"],
         task_type="CAUSAL_LM",
         modules_to_save=None,
     )
