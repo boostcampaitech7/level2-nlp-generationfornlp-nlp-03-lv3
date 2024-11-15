@@ -12,7 +12,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="beomi/gemma-ko-2b",
+        default="beomi/Qwen2.5-7B-Instruct-kowiki-qa-context",
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
             "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
@@ -87,7 +87,7 @@ class OurTrainingArguments(SFTConfig):
     )
     # 학습 관련 설정
     num_train_epochs: int = field(
-        default=3,
+        default=5,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     # max_steps: int = field(
@@ -108,7 +108,7 @@ class OurTrainingArguments(SFTConfig):
     #     default=200,
     #     metadata={"help": "어떤 step에서 저장할지"},
     # )
-    logging_steps: int = field(default=100)
+    logging_steps: int = field(default=200)
     save_strategy: Optional[str] = field(
         default="epoch",
         metadata={"help": "epoch/steps이 끝날때마다 저장"},
@@ -167,13 +167,13 @@ class OurTrainingArguments(SFTConfig):
         default=0.01,
         metadata={"help": "가중치 감소율 (정규화), 과적합 방지" "0.01 ~ 0.1 정도가 많이 사용"},
     )
-    # max_grad_norm: int = field(
-    #     default=1,
-    #     metadata={
-    #         "help": "그래디언트 클리핑을 위한 최대 노름"
-    #         "1 또는 그 이상의 값으로 설정하는 것이 일반적, 하지만 때에 따라(예를들어 LLM SFT시) 0도 설정 해보길 권장"
-    #     },
-    # )
+    max_grad_norm: int = field(
+        default=1,
+        metadata={
+            "help": "그래디언트 클리핑을 위한 최대 노름"
+            "1 또는 그 이상의 값으로 설정하는 것이 일반적, 하지만 때에 따라(예를들어 LLM SFT시) 0도 설정 해보길 권장"
+        },
+    )
     # 스케줄러 설정
     lr_scheduler_type: Optional[str] = field(
         default="cosine",  # cosine_with_restarts

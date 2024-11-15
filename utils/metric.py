@@ -30,17 +30,21 @@ class CasualMetric:
     # metric 계산 함수
     def compute_metrics(self, evaluation_result):
         logits, labels = evaluation_result
+        # print("전처리 후 logits:", logits)
 
         # 토큰화된 레이블 디코딩
         labels = np.where(labels != -100, labels, self.tokenizer.pad_token_id)
+        # print("label encode 위치 : ", labels)
         labels = self.tokenizer.batch_decode(labels, skip_special_tokens=True)
-        # labels = list(map(lambda x: x.split("<end_of_turn>")[0].strip(), labels))
+        # print("label decode: ", labels)
         labels = list(map(lambda x: x.split(self.end_turn)[0].strip(), labels))
         labels = list(map(lambda x: int_output_map[x], labels))
+        # print("label 후처리: ", labels)
 
-        # 소프트맥스 함수를 사용하여 로그트 변환
+        # 소프트맥스 함수를 사용하여 로그 변환
         probs = torch.nn.functional.softmax(torch.tensor(logits), dim=-1)
         predictions = np.argmax(probs, axis=-1)
+        # print("prediction: ", predictions)
 
         # 정확도 계산
         acc = acc_metric.compute(predictions=predictions, references=labels)

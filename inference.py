@@ -66,8 +66,8 @@ def inference_by_logit(model, dataset, raw_dataset, tokenizer):
             _id = raw_dataset[i]["id"]
             len_choices = len(raw_dataset[i]["choices"].split("\n"))
             input_ids = torch.tensor(data["input_ids"])
+            input_ids = input_ids.unsqueeze(0)
             input_ids = input_ids.to(device)
-            input_ids = input_ids.view(1, -1)
 
             outputs = model(input_ids)
 
@@ -86,8 +86,8 @@ if __name__ == "__main__":
     # fmt: off
     parser = argparse.ArgumentParser()
     parser.add_argument("--strategy", type=str, default="logit", choices=['logit', 'generation'])
-    parser.add_argument("--model_name_or_path", type=str, default="beomi/gemma-ko-2b")
-    parser.add_argument("--checkpoint", type=str, default="./resources/outputs_gemma/checkpoint-5481")
+    parser.add_argument("--model_name_or_path", type=str, default="beomi/Qwen2.5-7B-Instruct-kowiki-qa-context")
+    parser.add_argument("--checkpoint", type=str, default="./resources/checkpoint/beomi/Qwen2.5-7B-Instruct-kowiki-qa-context/checkpoint-1827")
     parser.add_argument("--dataset_name", type=str, default="./resources/raw/test_reformat.csv")
     parser.add_argument("--truncation", type=bool, default=False)
     parser.add_argument("--padding", type=bool, default=False)
@@ -115,6 +115,7 @@ if __name__ == "__main__":
     model = AutoPeftModelForCausalLM.from_pretrained(
         args.checkpoint,
         trust_remote_code=True,
+        torch_dtype=torch.bfloat16,
         device_map="auto",
     )
 
