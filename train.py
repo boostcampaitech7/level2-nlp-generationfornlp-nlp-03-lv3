@@ -39,13 +39,16 @@ CHAT_TEMPLETE = {
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE,
 }
-
+CHAT_TEMPLETE_PLUS = {
+    "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE_PLUS,
+    "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE_PLUS,
+    "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE_PLUS,
+}
 RESPONSE_TEMP = {
     "beomi/gemma-ko-2b": BASELINE_RESPONSE_TEMP,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_RESPONSE_TEMP,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_RESPONSE_TEMP,
 }
-
 END_TURN = {
     "beomi/gemma-ko-2b": BASELINE_END_TURN,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_END_TURN,
@@ -67,7 +70,12 @@ def main():
     )
 
     # 데이터 불러오기 및 전처리
-    dm = CausalLMDataModule(data_args, tokenizer, CHAT_TEMPLETE[model_args.model_name_or_path])
+    dm = CausalLMDataModule(
+        data_args,
+        tokenizer,
+        CHAT_TEMPLETE[model_args.model_name_or_path],
+        CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
+    )
     train_dataset, eval_dataset = dm.get_processing_data()
 
     logger.info(f"{tokenizer.decode(train_dataset[0]['input_ids'], skip_special_tokens=False)}")
@@ -116,11 +124,6 @@ def main():
     # 모델 불러오기
     model = get_peft_model(model, lora_config)
     model.print_trainable_parameters()
-    logger.info(model)
-    total_params = sum(p.numel() for p in model.parameters())
-    logger.info(f"모델의 전체 파라미터 수 : {total_params}")
-    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    logger.info(f"모델의 학습 가능한 파라미터 수 : {trainable_params}")
 
     # Data collactor 설정
     data_collator = DataCollatorForCompletionOnlyLM(

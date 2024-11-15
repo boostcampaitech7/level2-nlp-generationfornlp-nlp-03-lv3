@@ -12,7 +12,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct",
+        default="beomi/gemma-ko-2b",
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
             "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
@@ -23,11 +23,11 @@ class ModelArguments:
         metadata={"help": "QLoRA(4bit) 사용할지 안할지, 만약 사용한다면 optim 수정, 대신 학습 속도가 느려짐"},
     )
     lora_r: int = field(
-        default=16,
+        default=6,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     lora_alpha: int = field(
-        default=32,
+        default=8,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
 
@@ -71,7 +71,7 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "체크포인트와 모델 출력을 저장할 디렉터리 경로"},
     )
     max_seq_length: int = field(
-        default=2048,
+        default=2000,
         metadata={
             "help": "The maximum total input sequence length after tokenization. Sequences longer "
             "than this will be truncated, sequences shorter will be padded."
@@ -87,11 +87,11 @@ class OurTrainingArguments(SFTConfig):
     )
     # 학습 관련 설정
     num_train_epochs: int = field(
-        default=10,
+        default=3,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     # max_steps: int = field(
-    #     default=3,c
+    #     default=3,
     #     metadata={
     #         "help": "학습 할 스텝 수"
     #     },
@@ -127,15 +127,19 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "학습 중 장치당 배치 크기" "GPU 메모리에 따라 줄여서 사용 / 너무 큰 배치는 지양"},
     )
     per_device_eval_batch_size: int = field(
-        default=4,
-        metadata={"help": "평가 중 장치당 배치 크기"},
+        default=1,
+        metadata={
+            "help": "평가 중 장치당 배치 크기"
+            "per_device_eval_batch_size 따라 accuracy 값이 다르게 나옴"
+            "지정된 batch 내에서 accuracy를 계산해서 그런 것 같은데 근데 1일 때는 어떻게 계산하는 지 모르겠음"
+        },
     )
     gradient_accumulation_steps: int = field(
         default=1,
         metadata={"help": "그래디언트 누적을 위한 스텝 수" "GPU 자원이 부족할 시 배치를 줄이고 누적 수를 늘려 학습"},
     )
     learning_rate: int = field(
-        default=3e-05,
+        default=2e-05,
         metadata={"help": "학습률 설정" "학습률 스케줄러(linear, cosine) 사용시 Max 값"},
     )
     # 모델 평가 관련
@@ -163,26 +167,26 @@ class OurTrainingArguments(SFTConfig):
         default=0.01,
         metadata={"help": "가중치 감소율 (정규화), 과적합 방지" "0.01 ~ 0.1 정도가 많이 사용"},
     )
-    max_grad_norm: int = field(
-        default=1,
-        metadata={
-            "help": "그래디언트 클리핑을 위한 최대 노름"
-            "1 또는 그 이상의 값으로 설정하는 것이 일반적, 하지만 때에 따라(예를들어 LLM SFT시) 0도 설정 해보길 권장"
-        },
-    )
+    # max_grad_norm: int = field(
+    #     default=1,
+    #     metadata={
+    #         "help": "그래디언트 클리핑을 위한 최대 노름"
+    #         "1 또는 그 이상의 값으로 설정하는 것이 일반적, 하지만 때에 따라(예를들어 LLM SFT시) 0도 설정 해보길 권장"
+    #     },
+    # )
     # 스케줄러 설정
     lr_scheduler_type: Optional[str] = field(
-        default="cosine",
-        metadata={"help": "학습률 스케줄러 설정"},
+        default="cosine",  # cosine_with_restarts
+        metadata={"help": "학습률 스케줄러 설정" "cosine_with_restarts"},
     )
-    warmup_steps: int = field(
-        default=600,
-        metadata={
-            "help": "학습률을 워밍업하기 위한 스텝 수"
-            "전체 학습 스텝 수의 2%~5% 정도로 설정하는 것이 일반적"
-            "스텝수 = 데이터 개수*에폭수 / 배치사이즈"
-        },
-    )
+    # warmup_steps: int = field(
+    #     default=0,
+    #     metadata={
+    #         "help": "학습률을 워밍업하기 위한 스텝 수"
+    #         "전체 학습 스텝 수의 2%~5% 정도로 설정하는 것이 일반적"
+    #         "스텝수 = 데이터 개수*에폭수 / 배치사이즈"
+    #     },
+    # )
 
 
 if __name__ == "__main__":
