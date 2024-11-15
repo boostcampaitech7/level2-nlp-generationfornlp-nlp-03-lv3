@@ -12,7 +12,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="beomi/Qwen2.5-7B-Instruct-kowiki-qa-context",
+        default="LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct",
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
             "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
@@ -87,11 +87,11 @@ class OurTrainingArguments(SFTConfig):
     )
     # 학습 관련 설정
     num_train_epochs: int = field(
-        default=3,
+        default=10,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     # max_steps: int = field(
-    #     default=3,
+    #     default=3,c
     #     metadata={
     #         "help": "학습 할 스텝 수"
     #     },
@@ -176,7 +176,7 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "학습률 스케줄러 설정"},
     )
     warmup_steps: int = field(
-        default=200,
+        default=600,
         metadata={
             "help": "학습률을 워밍업하기 위한 스텝 수"
             "전체 학습 스텝 수의 2%~5% 정도로 설정하는 것이 일반적"

@@ -11,7 +11,7 @@ from utils.helpers import find_linear_names
 from utils.dataloader import CausalLMDataModule
 from utils.arguments import ModelArguments, DataTrainingArguments, OurTrainingArguments
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
-from peft import get_peft_model, LoraConfig, AutoPeftModelForCausalLM
+from peft import get_peft_model, LoraConfig
 from transformers import HfArgumentParser, AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from huggingface_hub import login
 # fmt: on
