@@ -3,7 +3,7 @@ from typing import Optional
 from transformers import TrainingArguments, HfArgumentParser
 from dataclasses import dataclass, field
 from trl import SFTConfig
-
+from datetime import datetime
 
 @dataclass
 class ModelArguments:
@@ -187,7 +187,14 @@ class OurTrainingArguments(SFTConfig):
     #         "스텝수 = 데이터 개수*에폭수 / 배치사이즈"
     #     },
     # )
-
+    report_to: Optional[str] = field(
+        default="mlflow",
+        metadata={"help": "mlflow로 logging"},
+    )
+    run_name: Optional[str] = field(
+        default=f"Gen_NLP-{datetime.now().strftime('%Y-%m-%d-%H-%M-%s')}",
+        metadata={"help": "mlflow run name"},
+    )
 
 if __name__ == "__main__":
     parser = HfArgumentParser((ModelArguments, DataTrainingArguments, OurTrainingArguments))

@@ -14,6 +14,16 @@ from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from peft import get_peft_model, LoraConfig
 from transformers import HfArgumentParser, AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from huggingface_hub import login
+
+import mlflow
+import mlflow.transformers
+import mlflow.pytorch
+
+import warnings
+
+# Disable a few less-than-useful UserWarnings from setuptools and pydantic
+warnings.filterwarnings("ignore", category=UserWarning)
+
 # fmt: on
 hf_token = "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"
 login(hf_token)
@@ -140,6 +150,12 @@ def main():
     tokenizer.padding_side = "right"
     logger.info(f"토크나이저 스페셜 토큰 : {tokenizer.special_tokens_map}")
 
+    mlflow.set_tracking_uri("http://localhost:5000/")
+    # experiment를 active하고 experiment instance를 반환.
+    mlflow.set_experiment("Gen_NLP_exp1")
+    # MLflow autolog 활성화
+    mlflow.transformers.autolog()
+                    
     trainer = SFTTrainer(
         model=model,
         train_dataset=train_dataset,
@@ -148,38 +164,46 @@ def main():
         tokenizer=tokenizer,
         compute_metrics=cm.compute_metrics,
         preprocess_logits_for_metrics=cm.preprocess_logits_for_metrics,
-        args=training_args,
+        args=training_args, 
     )
-
+    
     # Training
-    train_result = trainer.train()
-    trainer.save_model()
+    with mlflow.start_run():
+        mlflow.log_params(lora_config.to_dict())
+        train_result = trainer.train()
+        trainer.save_model()
+        
+        metrics = train_result.metrics
+        metrics["train_samples"] = len(train_dataset)
 
-    metrics = train_result.metrics
-    metrics["train_samples"] = len(train_dataset)
+        trainer.log_metrics("train", metrics)
+        trainer.save_metrics("train", metrics)
+        trainer.save_state()
 
-    trainer.log_metrics("train", metrics)
-    trainer.save_metrics("train", metrics)
-    trainer.save_state()
+        output_train_file = os.path.join(training_args.output_dir, "train_results.txt")
+        with open(output_train_file, "w") as writer:
+            logger.info("***** Train results *****")
+            for key, value in sorted(train_result.metrics.items()):
+                logger.info(f"  {key} = {value}")
+                writer.write(f"{key} = {value}\n")
 
-    output_train_file = os.path.join(training_args.output_dir, "train_results.txt")
-    with open(output_train_file, "w") as writer:
-        logger.info("***** Train results *****")
-        for key, value in sorted(train_result.metrics.items()):
-            logger.info(f"  {key} = {value}")
-            writer.write(f"{key} = {value}\n")
+        # Training state 저장
+        trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))
 
-    # Training state 저장
-    trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))
+        # Evaluation
+        logger.info("***** Evaluate *****")
+        metrics = trainer.evaluate()
 
-    # Evaluation
-    logger.info("***** Evaluate *****")
-    metrics = trainer.evaluate()
+        metrics["eval_samples"] = len(eval_dataset)
 
-    metrics["eval_samples"] = len(eval_dataset)
+        trainer.log_metrics("eval", metrics)
+        trainer.save_metrics("eval", metrics)
 
-    trainer.log_metrics("eval", metrics)
-    trainer.save_metrics("eval", metrics)
+        # 모델 레지스트리에 등록
+        mlflow.transformers.log_model(transformers_model={"model":trainer.model, "tokenizer":tokenizer},
+                                      artifact_path="model",
+                                      task="text-generation",
+                                      registered_model_name='Gen_NLP_exp1')
 
 
 if __name__ == "__main__":
