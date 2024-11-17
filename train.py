@@ -152,6 +152,7 @@ def main():
 
     mlflow.set_tracking_uri("http://localhost:5000/")
     # experiment를 active하고 experiment instance를 반환.
+    # 원하는 실험 이름으로 바꾸기.
     mlflow.set_experiment("Gen_NLP_exp1")
     # MLflow autolog 활성화
     mlflow.transformers.autolog()
@@ -203,7 +204,7 @@ def main():
         mlflow.transformers.log_model(transformers_model={"model":trainer.model, "tokenizer":tokenizer},
                                       artifact_path="model",
                                       task="text-generation",
-                                      registered_model_name='Gen_NLP_exp1')
+                                      registered_model_name='Gen_NLP_exp1')    # 원하는 실험 이름으로 바꾸기.
 
 
 if __name__ == "__main__":
