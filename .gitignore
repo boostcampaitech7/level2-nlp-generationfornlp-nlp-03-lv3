@@ -3,6 +3,7 @@ lightning_logs/
 mlruns/
 resources/checkpoint/
 resources/outputs_gemma/
+resources/wikidump/
 .idea/
 .DS_Store
 *.pdf
