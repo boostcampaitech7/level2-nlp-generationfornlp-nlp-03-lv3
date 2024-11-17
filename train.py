@@ -17,12 +17,6 @@ from huggingface_hub import login
 
 import mlflow
 import mlflow.transformers
-import mlflow.pytorch
-
-import warnings
-
-# Disable a few less-than-useful UserWarnings from setuptools and pydantic
-warnings.filterwarnings("ignore", category=UserWarning)
 
 # fmt: on
 hf_token = "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"
