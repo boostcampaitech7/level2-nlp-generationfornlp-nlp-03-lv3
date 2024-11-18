@@ -40,7 +40,7 @@ def main(args):
 
     LOGGER.info("*** Building Vector Database ***")
 
-    vector_db = VectorDatabase()
+    vector_db = VectorDatabase(context_pickle="./pickles/context_pickle.pkl")
 
     model = AutoModel.from_pretrained(args.model)
     tokenizer = AutoTokenizer.from_pretrained(args.model)
@@ -59,6 +59,7 @@ def main(args):
     )
 
     #### Train BM 25 ####
+    print(">>> Train BM 25")
     if args.train_bm25:
         bm25_model = BM25Reranker(tokenizer=tokenizer)
         bm25_model.build_bm25_model(text=vector_db.text, title=vector_db.title, path=args.save_path)
