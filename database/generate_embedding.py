@@ -40,7 +40,7 @@ def main(args):
 
     LOGGER.info("*** Building Vector Database ***")
 
-    vector_db = VectorDatabase(context_pickle="./pickles/context_pickle.pkl")
+    vector_db = VectorDatabase()
 
     model = AutoModel.from_pretrained(args.model)
     tokenizer = AutoTokenizer.from_pretrained(args.model)
