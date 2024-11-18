@@ -154,7 +154,7 @@ def main():
 
     # experiment를 active하고 experiment instance를 반환.
     # 원하는 실험 이름으로 바꾸기.
-    mlflow.set_experiment("Gen_NLP_exp")
+    mlflow.set_experiment("Exp_name")
     # MLflow autolog 활성화
     mlflow.transformers.autolog()
 
@@ -170,7 +170,7 @@ def main():
     )
 
     # Training
-    with mlflow.start_run(run_name="temp"):  # 실험 안 run name
+    with mlflow.start_run(run_name="whateveryouwant"):  # 실험 안 run name
         mlflow.log_params(lora_config.to_dict())
         train_result = trainer.train()
         trainer.save_model()

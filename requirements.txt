@@ -11,3 +11,5 @@ bitsandbytes
 numpy==1.26.4
 faiss-gpu
 kiwipiepy
+mlflow
+psycopg2-binary
