@@ -38,6 +38,9 @@ class VectorDatabase(object):
             data = pickle.load(file)
             self.text = data.get("text", None)
             self.title = data.get("title", None)
+        print(self.title[:2], self.text[:2])
+        print(len(self.title), len(self.text))
+        print(">>> Done")
 
     def _process_file(self, file_path):
         with open(file_path, "rt", encoding="utf8") as f:

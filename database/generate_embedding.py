@@ -59,6 +59,7 @@ def main(args):
     )
 
     #### Train BM 25 ####
+    print(">>> Train BM 25")
     if args.train_bm25:
         bm25_model = BM25Reranker(tokenizer=tokenizer)
         bm25_model.build_bm25_model(text=vector_db.text, title=vector_db.title, path=args.save_path)

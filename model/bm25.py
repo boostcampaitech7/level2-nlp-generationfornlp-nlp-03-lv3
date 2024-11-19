@@ -2,6 +2,7 @@ import os
 import pickle
 import logging
 import numpy as np
+from tqdm import tqdm
 from rank_bm25 import BM25Okapi
 from kiwipiepy import Kiwi
 
@@ -34,6 +35,7 @@ class BM25Reranker(object):
     def _tokenize(self, text):
         # tokenized_text = [self.tokenizer.tokenize(txt) for txt in text]
         tokenized_text = []
+        # for txt in tqdm(text, total=len(text):
         for txt in text:
             try:
                 morph_question = kiwi.tokenize(txt)

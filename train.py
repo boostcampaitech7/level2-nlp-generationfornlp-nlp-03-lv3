@@ -48,6 +48,9 @@ CHAT_TEMPLETE_PLUS = {
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE_PLUS,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE_PLUS,
 }
+CHAT_TEMPLETE_R = {
+    "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": [QWEN_CHAT_TEMPLETE_R, QWEN_CHAT_TEMPLETE_PLUS_R],
+}
 RESPONSE_TEMP = {
     "beomi/gemma-ko-2b": BASELINE_RESPONSE_TEMP,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_RESPONSE_TEMP,
@@ -79,10 +82,13 @@ def main():
         tokenizer,
         CHAT_TEMPLETE[model_args.model_name_or_path],
         CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
+        CHAT_TEMPLETE_R[model_args.model_name_or_path],
     )
     train_dataset, eval_dataset = dm.get_processing_data()
 
     logger.info(f"{tokenizer.decode(train_dataset[0]['input_ids'], skip_special_tokens=False)}")
+    logger.info(f"{tokenizer.decode(train_dataset[1]['input_ids'], skip_special_tokens=False)}")
+    logger.info(f"{tokenizer.decode(train_dataset[2]['input_ids'], skip_special_tokens=False)}")
     train_dataset_token_lengths = [len(train_dataset[i]["input_ids"]) for i in range(len(train_dataset))]
     logger.info(f"max token length: {max(train_dataset_token_lengths)}")
     logger.info(f"min token length: {min(train_dataset_token_lengths)}")
@@ -144,13 +150,14 @@ def main():
     tokenizer.padding_side = "right"
     logger.info(f"토크나이저 스페셜 토큰 : {tokenizer.special_tokens_map}")
 
-    mlflow.set_tracking_uri("http://localhost:5000/")
+    mlflow.set_tracking_uri("http://10.28.224.137:30597/")
+
     # experiment를 active하고 experiment instance를 반환.
     # 원하는 실험 이름으로 바꾸기.
-    mlflow.set_experiment("Gen_NLP_exp1")
+    mlflow.set_experiment("Exp_name")
     # MLflow autolog 활성화
     mlflow.transformers.autolog()
-                    
+
     trainer = SFTTrainer(
         model=model,
         train_dataset=train_dataset,
@@ -159,15 +166,15 @@ def main():
         tokenizer=tokenizer,
         compute_metrics=cm.compute_metrics,
         preprocess_logits_for_metrics=cm.preprocess_logits_for_metrics,
-        args=training_args, 
+        args=training_args,
     )
-    
+
     # Training
-    with mlflow.start_run():
+    with mlflow.start_run(run_name="whateveryouwant"):  # 실험 안 run name
         mlflow.log_params(lora_config.to_dict())
         train_result = trainer.train()
         trainer.save_model()
-        
+
         metrics = train_result.metrics
         metrics["train_samples"] = len(train_dataset)
 
@@ -195,10 +202,12 @@ def main():
         trainer.save_metrics("eval", metrics)
 
         # 모델 레지스트리에 등록
-        mlflow.transformers.log_model(transformers_model={"model":trainer.model, "tokenizer":tokenizer},
-                                      artifact_path="model",
-                                      task="text-generation",
-                                      registered_model_name='Gen_NLP_exp1')    # 원하는 실험 이름으로 바꾸기.
+        mlflow.transformers.log_model(
+            transformers_model={"model": trainer.model, "tokenizer": tokenizer},
+            artifact_path="model",
+            task="text-generation",
+            registered_model_name="Gen_NLP_exp",  # 원하는 실험 이름으로 바꾸기.
+        )
 
 
 if __name__ == "__main__":

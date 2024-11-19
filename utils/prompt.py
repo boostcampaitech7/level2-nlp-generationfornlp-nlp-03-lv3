@@ -76,7 +76,26 @@ QWEN_CHAT_TEMPLETE = """<|im_start|>system
 지문: 
 {}
 
-질문 : 
+질문: 
+{}
+
+선택지: 
+{}
+
+1, 2, 3, 4, 5 중에 하나를 정답으로 고르세요.
+정답:<|im_end|>
+<|im_start|>assistant
+{}<|im_end|>"""
+QWEN_CHAT_TEMPLETE_R = """<|im_start|>system 
+지문을 읽고 질문의 답을 구하세요.<|im_end|>
+<|im_start|>user
+지문: 
+{}
+
+힌트: 
+{}
+
+질문: 
 {}
 
 선택지: 
@@ -94,7 +113,29 @@ QWEN_CHAT_TEMPLETE_PLUS = """<|im_start|>system
 지문: 
 {}
 
-질문 : 
+질문: 
+{}
+
+<보기>: 
+{}
+
+선택지: 
+{}
+
+1, 2, 3, 4, 5 중에 하나를 정답으로 고르세요.
+정답:<|im_end|>
+<|im_start|>assistant
+{}<|im_end|>"""
+QWEN_CHAT_TEMPLETE_PLUS_R = """<|im_start|>system 
+지문을 읽고 질문의 답을 구하세요.<|im_end|>
+<|im_start|>user
+지문: 
+{}
+
+힌트: 
+{}
+
+질문: 
 {}
 
 <보기>: 

@@ -114,13 +114,11 @@ if __name__ == "__main__":
     logger.info(f"min token length: {min(inference_dataset_token_lengths)}")
     logger.info(f"avg token length: {np.mean(inference_dataset_token_lengths)}")
 
-            
     # registry에 저장된 모델을 불러온다.
-    model_name = 'Gen_NLP_exp1'
+    mlflow.set_tracking_uri("http://10.28.224.137:30597/")
+    model_name = "EXP_name"
     model_version = 1
-    model = mlflow.transformers.load_model(
-        model_uri=f'models:/{model_name}/{model_version}'
-    )
+    model = mlflow.transformers.load_model(model_uri=f"models:/{model_name}/{model_version}")
 
     if args.strategy == "logit":
         inference_by_logit(model, inference_dataset, raw_dataset, tokenizer)
