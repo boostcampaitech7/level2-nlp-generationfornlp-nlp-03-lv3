@@ -104,18 +104,12 @@ def main():
         dtype=None,
         load_in_4bit=model_args.quantization,
     )
+
     model = FastLanguageModel.get_peft_model(
         model,
         r=model_args.lora_r,  # Choose any number > 0 ! Suggested 8, 16, 32, 64, 128
-        target_modules=[
-            "q_proj",
-            "k_proj",
-            "v_proj",
-            "o_proj",
-            "gate_proj",
-            "up_proj",
-            "down_proj",
-        ],
+        target_modules=["q_proj", "k_proj"],
+        # target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
         lora_alpha=model_args.lora_alpha,
         lora_dropout=0,  # Supports any, but = 0 is optimized
         bias="none",  # Supports any, but = "none" is optimized

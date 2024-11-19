@@ -148,8 +148,8 @@ def inference_batch(
 def main(args):
     # Load & preprocessing data
     df = from_processed(args.data)
-    df = df.drop("Unnamed: 0.1", axis=1)
-    df = df.drop("Unnamed: 0", axis=1)
+    # df = df.drop("Unnamed: 0.1", axis=1)
+    # df = df.drop("Unnamed: 0", axis=1)
     print(df)
     preprocessor = WikipediaTextPreprocessor()
 
@@ -209,7 +209,7 @@ def main(args):
     df_non_target["retrieve_context"] = ""
     df_final = pd.concat([df_non_target, df_target])
     df_final = df_final.drop("choices_", axis=1)
-    df_final.to_csv("train_reformat_with_source_subject_retrieve.csv", encoding="utf-8-sig", index=0)
+    df_final.to_csv("test_reformat_with_source_subject_retrieve.csv", encoding="utf-8-sig", index=0)
 
 
 """ 1개씩 retreival 하는 코드
@@ -256,7 +256,7 @@ def main(args):
 if __name__ == "__main__":
     # fmt: off
     parser = argparse.ArgumentParser(description="get topk-accuracy of retrieval model")
-    parser.add_argument("--data", type=str, default="../resources/processed/train_reformat_with_source_subject.csv", help="Directory of pretrained encoder model")
+    parser.add_argument("--data", type=str, default="../resources/processed/test_reformat_with_source_subject.csv", help="Directory of pretrained encoder model")
     parser.add_argument("--question_model", type=str, default="snumin44/biencoder-ko-bert-question", help="Directory of pretrained encoder model")
     # parser.add_argument("--context_model", type=str, default="snumin44/biencoder-ko-bert-context", help="Directory of pretrained encoder model")
     parser.add_argument("--faiss_path", type=str, default="./pickles/faiss_pickle.pkl", help="Path of faiss pickle")

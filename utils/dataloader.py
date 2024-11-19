@@ -9,7 +9,10 @@ def from_processed(dir: str):
         "\n".join([f"{idx + 1} - {choice.strip()}" for idx, choice in enumerate(literal_eval(x))])
         for x in df["choices"]
     ]
-    df["retrieve_context"] = df["retrieve_context"].fillna("no")
+    try:
+        df["retrieve_context"] = df["retrieve_context"].fillna("no")
+    except:
+        df["retrieve_context"] = "no"
     processed_df = Dataset.from_pandas(df)
     return processed_df
 

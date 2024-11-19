@@ -24,11 +24,11 @@ class ModelArguments:
         metadata={"help": "QLoRA(4bit) 사용할지 안할지, 만약 사용한다면 optim 수정, 대신 학습 속도가 느려짐"},
     )
     lora_r: int = field(
-        default=16,
+        default=6,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     lora_alpha: int = field(
-        default=32,
+        default=8,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
 
