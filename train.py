@@ -10,6 +10,7 @@ from utils.metric import CasualMetric
 from utils.helpers import find_linear_names
 from utils.dataloader import CausalLMDataModule
 from utils.arguments import ModelArguments, DataTrainingArguments, OurTrainingArguments
+from utils.valid_save import save_evaluation_results_with_id
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from peft import get_peft_model, LoraConfig
 from transformers import HfArgumentParser, AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
@@ -149,15 +150,7 @@ def main():
     tokenizer.pad_token_id = tokenizer.eos_token_id
     tokenizer.padding_side = "right"
     logger.info(f"토크나이저 스페셜 토큰 : {tokenizer.special_tokens_map}")
-
-    mlflow.set_tracking_uri("http://10.28.224.137:30597/")
-
-    # experiment를 active하고 experiment instance를 반환.
-    # 원하는 실험 이름으로 바꾸기.
-    mlflow.set_experiment("Exp_name")
-    # MLflow autolog 활성화
-    mlflow.transformers.autolog()
-
+    
     trainer = SFTTrainer(
         model=model,
         train_dataset=train_dataset,
@@ -168,9 +161,17 @@ def main():
         preprocess_logits_for_metrics=cm.preprocess_logits_for_metrics,
         args=training_args,
     )
+    
+    mlflow.set_tracking_uri("http://10.28.224.137:30597/")
 
+    # experiment를 active하고 experiment instance를 반환.
+    # 원하는 실험 이름으로 바꾸기.
+    mlflow.set_experiment("noah_valid_check_test")
+    # MLflow autolog 활성화
+    mlflow.transformers.autolog()
+    
     # Training
-    with mlflow.start_run(run_name="whateveryouwant"):  # 실험 안 run name
+    with mlflow.start_run(run_name="noah_valid_check_test1"):  # 실험 안 run name
         mlflow.log_params(lora_config.to_dict())
         train_result = trainer.train()
         trainer.save_model()
@@ -196,6 +197,19 @@ def main():
         logger.info("***** Evaluate *****")
         metrics = trainer.evaluate()
 
+        # 평가 결과 저장할 파일 경로
+        eval_output_file = os.path.join(training_args.output_dir, "evaluation_results_with_id.csv")
+
+        # 평가 결과 저장 함수 호출
+        save_evaluation_results_with_id(
+            eval_dataset=eval_dataset,
+            model=trainer.model,
+            tokenizer=tokenizer,
+            output_file=eval_output_file,
+            max_length=training_args.generation_max_length,
+        )
+
+
         metrics["eval_samples"] = len(eval_dataset)
 
         trainer.log_metrics("eval", metrics)
@@ -206,7 +220,7 @@ def main():
             transformers_model={"model": trainer.model, "tokenizer": tokenizer},
             artifact_path="model",
             task="text-generation",
-            registered_model_name="Gen_NLP_exp",  # 원하는 실험 이름으로 바꾸기.
+            registered_model_name="noah_valid_check_test",  # 원하는 실험 이름으로 바꾸기.
         )
 
 

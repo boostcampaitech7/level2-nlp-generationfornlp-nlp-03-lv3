@@ -11,6 +11,9 @@ from trl import SFTTrainer
 from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
 from huggingface_hub import login
+import mlflow
+import mlflow.transformers
+
 # fmt: on
 hf_token = "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"
 login(hf_token)
@@ -117,11 +120,27 @@ def main():
             output_dir="resources/checkpoint/knowledge",
         ),
     )
-    # Training
-    trainer_stats = trainer.train()
-    model.save_pretrained("kowikitext-Solar-Ko-Recovery-11B")
-    tokenizer.save_pretrained("kowikitext-Solar-Ko-Recovery-11B")
+    mlflow.set_tracking_uri("http://10.28.224.137:30597/")
 
+    # experiment를 active하고 experiment instance를 반환.
+    # 원하는 실험 이름으로 바꾸기.
+    mlflow.set_experiment("noah")
+    # MLflow autolog 활성화
+    mlflow.transformers.autolog()
+    
+    # Training
+    with mlflow.start_run(run_name="noah_test"):  # 실험 안 run name
+        trainer_stats = trainer.train()
+        model.save_pretrained("kowikitext-Solar-Ko-Recovery-11B")
+        tokenizer.save_pretrained("kowikitext-Solar-Ko-Recovery-11B")
+
+        # 모델 레지스트리에 등록
+        mlflow.transformers.log_model(
+            transformers_model={"model": trainer.model, "tokenizer": tokenizer},
+            artifact_path="model",
+            task="text-generation",
+            registered_model_name="noah_exp",  # 원하는 실험 이름으로 바꾸기.
+        )
 
 if __name__ == "__main__":
     main()
