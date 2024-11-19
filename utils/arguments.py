@@ -192,10 +192,6 @@ class OurTrainingArguments(SFTConfig):
         default="mlflow",
         metadata={"help": "mlflow로 logging"},
     )
-    run_name: Optional[str] = field(
-        default=f"Gen_NLP-{datetime.now().strftime('%Y-%m-%d-%H-%M-%s')}",
-        metadata={"help": "mlflow run name"},
-    )
 
 
 if __name__ == "__main__":
