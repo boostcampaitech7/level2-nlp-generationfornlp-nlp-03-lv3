@@ -36,7 +36,7 @@ def main():
     # 모델 불러오기
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name="beomi/Solar-Ko-Recovery-11B",
-        max_seq_length=4096,  # 4096
+        max_seq_length=2048,  # 4096
         dtype=None,
         load_in_4bit=True,
     )
@@ -56,11 +56,23 @@ def main():
     )
 
     # 데이터 불러오기 및 전처리
-    alpaca_prompt = """다음은 작업을 설명하는 지시문과 추가적인 맥락을 제공하는 입력이 함께 제공됩니다. 단계별로 추론하며 요청을 적절히 완료하는 응답을 작성하세요.
+    # alpaca_prompt = """다음은 작업을 설명하는 지시문과 추가적인 맥락을 제공하는 입력이 함께 제공됩니다. 단계별로 추론하며 요청을 적절히 완료하는 응답을 작성하세요.
+    # ### 지시문:
+    # {}
+
+    # ## 입력:
+    # {}
+
+    # ## 추론:
+    # {}
+
+    # ## 추론 답변:
+    # {}
+
+    # ### 응답:
+    # {}"""
+    alpaca_prompt = """다음은 작업을 설명하는 지시문에 대해 단계별로 추론하며 요청을 적절히 완료하는 응답을 작성하세요.
     ### 지시문:
-    {}
-    
-    ## 입력:
     {}
     
     ## 추론:
@@ -93,14 +105,14 @@ def main():
         batched=True,
         num_proc=8,
     )
-    print(dataset)
+
     # Trainer 초기화
     trainer = SFTTrainer(
         model=model,
         tokenizer=tokenizer,
         train_dataset=dataset,
         dataset_text_field="text",
-        max_seq_length=8192,
+        max_seq_length=2048,
         dataset_num_proc=2,
         packing=False,  # Can make training 5x faster for short sequences.
         args=TrainingArguments(

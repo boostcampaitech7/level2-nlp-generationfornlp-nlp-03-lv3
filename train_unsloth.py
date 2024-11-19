@@ -7,7 +7,6 @@ import logging
 import logging.config
 from utils.prompt import *
 from utils.metric import CasualMetric
-from utils.helpers import find_linear_names
 from utils.dataloader import CausalLMDataModule
 from utils.arguments import ModelArguments, DataTrainingArguments, OurTrainingArguments
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
@@ -15,9 +14,6 @@ from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
 from transformers import HfArgumentParser, AutoTokenizer
 from huggingface_hub import login
-
-import mlflow
-import mlflow.transformers
 
 # fmt: on
 hf_token = "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"
@@ -43,11 +39,13 @@ CHAT_TEMPLETE = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE,
+    "beomi/Solar-Ko-Recovery-11B": SOLAR_CHAT_TEMPLETE,
 }
 CHAT_TEMPLETE_PLUS = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE_PLUS,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE_PLUS,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE_PLUS,
+    "beomi/Solar-Ko-Recovery-11B": SOLAR_CHAT_TEMPLETE_PLUS,
 }
 CHAT_TEMPLETE_R = {
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": [QWEN_CHAT_TEMPLETE_R, QWEN_CHAT_TEMPLETE_PLUS_R],
@@ -56,11 +54,13 @@ RESPONSE_TEMP = {
     "beomi/gemma-ko-2b": BASELINE_RESPONSE_TEMP,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_RESPONSE_TEMP,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_RESPONSE_TEMP,
+    "beomi/Solar-Ko-Recovery-11B": SOLAR_RESPONSE_TEMP,
 }
 END_TURN = {
     "beomi/gemma-ko-2b": BASELINE_END_TURN,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_END_TURN,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_END_TURN,
+    "beomi/Solar-Ko-Recovery-11B": SOLAR_END_TURN,
 }
 
 
@@ -73,11 +73,19 @@ def main():
     training_args.fp16 = not is_bfloat16_supported()
     training_args.bf16 = is_bfloat16_supported()
 
-    # 토크나이저 불러오기
-    tokenizer = AutoTokenizer.from_pretrained(
-        model_args.model_name_or_path,
-        trust_remote_code=True,
+    # 모델 및 토크나이저 불러오기
+    model, tokenizer = FastLanguageModel.from_pretrained(
+        model_name=model_args.model_name_or_path,
+        max_seq_length=training_args.max_seq_length,
+        dtype=None,
+        load_in_4bit=model_args.quantization,
     )
+    if model_args.model_name_or_path == "beomi/Solar-Ko-Recovery-11B":
+        token_list = ["<|im_start|>"]
+        special_tokens_dict = {"additional_special_tokens": token_list}
+        tokenizer.add_special_tokens(special_tokens_dict)
+        model.resize_token_embeddings(len(tokenizer))
+        logger.info(f"{special_tokens_dict}")
 
     # 데이터 불러오기 및 전처리
     dm = CausalLMDataModule(
@@ -85,7 +93,6 @@ def main():
         tokenizer,
         CHAT_TEMPLETE[model_args.model_name_or_path],
         CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
-        CHAT_TEMPLETE_R[model_args.model_name_or_path],
     )
     train_dataset, eval_dataset = dm.get_processing_data()
 
@@ -96,14 +103,6 @@ def main():
     logger.info(f"max token length: {max(train_dataset_token_lengths)}")
     logger.info(f"min token length: {min(train_dataset_token_lengths)}")
     logger.info(f"avg token length: {np.mean(train_dataset_token_lengths)}")
-
-    # 모델 불러오기
-    model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=model_args.model_name_or_path,
-        max_seq_length=training_args.max_seq_length,
-        dtype=None,
-        load_in_4bit=model_args.quantization,
-    )
 
     model = FastLanguageModel.get_peft_model(
         model,
@@ -120,12 +119,14 @@ def main():
         loftq_config=None,  # And LoftQ
     )
     # Data collactor 설정
+    logger.info(f"response template : {RESPONSE_TEMP[model_args.model_name_or_path]}")
     data_collator = DataCollatorForCompletionOnlyLM(
         response_template=RESPONSE_TEMP[model_args.model_name_or_path],
         tokenizer=tokenizer,
     )
 
     # Custom metric 설정
+    logger.info(f"end turn : {END_TURN[model_args.model_name_or_path]}")
     cm = CasualMetric(tokenizer=tokenizer, end_turn=END_TURN[model_args.model_name_or_path])
 
     # Trainer 초기화

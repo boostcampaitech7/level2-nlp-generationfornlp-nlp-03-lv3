@@ -13,10 +13,11 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="beomi/Qwen2.5-7B-Instruct-kowiki-qa-context",
+        default="beomi/Solar-Ko-Recovery-11B",
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
             "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
+            "beomi/Solar-Ko-Recovery-11B"
         },
     )
     quantization: bool = field(
@@ -41,7 +42,7 @@ class DataTrainingArguments:
 
     # 학습 데이터 불러오기
     dataset_name: str = field(
-        default="./resources/processed/train_reformat_with_source_subject_retrieve.csv",
+        default="./resources/raw/train_reformat.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 토크나이저 설정
@@ -72,7 +73,7 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "체크포인트와 모델 출력을 저장할 디렉터리 경로"},
     )
     max_seq_length: int = field(
-        default=8000,
+        default=2048,
         metadata={
             "help": "The maximum total input sequence length after tokenization. Sequences longer "
             "than this will be truncated, sequences shorter will be padded."
@@ -106,7 +107,7 @@ class OurTrainingArguments(SFTConfig):
     #     metadata={"help": "어떤 step에서 저장할지"},
     # )
     # eval_steps: int = field(
-    #     default=200,
+    #     default=5,
     #     metadata={"help": "어떤 step에서 저장할지"},
     # )
     logging_steps: int = field(default=200)
