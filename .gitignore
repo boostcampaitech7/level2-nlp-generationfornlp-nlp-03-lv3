@@ -4,6 +4,7 @@ mlruns/
 resources/checkpoint/
 resources/outputs_gemma/
 resources/wikidump/
+resources/kowikitext/
 .idea/
 .DS_Store
 *.pdf
