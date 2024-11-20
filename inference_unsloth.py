@@ -38,11 +38,13 @@ CHAT_TEMPLETE = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE,
+    "beomi/Solar-Ko-Recovery-11B": SOLAR_CHAT_TEMPLETE,
 }
 CHAT_TEMPLETE_PLUS = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE_PLUS,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE_PLUS,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE_PLUS,
+    "beomi/Solar-Ko-Recovery-11B": SOLAR_CHAT_TEMPLETE_PLUS,
 }
 CHAT_TEMPLETE_R = {
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": [QWEN_CHAT_TEMPLETE_R, QWEN_CHAT_TEMPLETE_PLUS_R],
@@ -51,11 +53,13 @@ RESPONSE_TEMP = {
     "beomi/gemma-ko-2b": BASELINE_RESPONSE_TEMP,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_RESPONSE_TEMP,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_RESPONSE_TEMP,
+    "beomi/Solar-Ko-Recovery-11B": SOLAR_RESPONSE_TEMP,
 }
 END_TURN = {
     "beomi/gemma-ko-2b": BASELINE_END_TURN,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_END_TURN,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_END_TURN,
+    "beomi/Solar-Ko-Recovery-11B": SOLAR_END_TURN,
 }
 
 
@@ -91,15 +95,15 @@ if __name__ == "__main__":
     # fmt: off
     parser = argparse.ArgumentParser()
     parser.add_argument("--strategy", type=str, default="logit", choices=['logit', 'generation'])
-    parser.add_argument("--model_name_or_path", type=str, default="beomi/Qwen2.5-7B-Instruct-kowiki-qa-context")
-    parser.add_argument("--checkpoint", type=str, default="./resources/checkpoint/beomi/Qwen2.5-7B-Instruct-kowiki-qa-context/checkpoint-1827")
-    parser.add_argument("--dataset_name", type=str, default="./resources/raw/test_reformat_with_source_subject_retrieve_.csv")
+    parser.add_argument("--model_name_or_path", type=str, default="beomi/Solar-Ko-Recovery-11B")
+    parser.add_argument("--checkpoint", type=str, default="./resources/checkpoint/beomi/Solar-Ko-Recovery-11B/checkpoint-3654")
+    parser.add_argument("--dataset_name", type=str, default="./resources/raw/test_reformat.csv")
     parser.add_argument("--truncation", type=bool, default=False)
     parser.add_argument("--padding", type=bool, default=False)
     # fmt: on
     args = parser.parse_args()
 
-    model, tokenizer = FastLanguageModel.from_pretrained(args.checkpoint, dtype=torch.bfloat16)
+    model, tokenizer = FastLanguageModel.from_pretrained(args.checkpoint, dtype=None)
     FastLanguageModel.for_inference(model)  # Enable native 2x faster inference
     # 데이터 불러오기 및 전처리
     dm = CausalLMDataModule(
@@ -107,10 +111,12 @@ if __name__ == "__main__":
         tokenizer,
         CHAT_TEMPLETE[args.model_name_or_path],
         CHAT_TEMPLETE_PLUS[args.model_name_or_path],
-        CHAT_TEMPLETE_R[args.model_args.model_name_or_path],
+        CHAT_TEMPLETE_R[args.model_name_or_path] if args.model_name_or_path != "beomi/Solar-Ko-Recovery-11B" else None,
     )
     raw_dataset, inference_dataset = dm.get_inference_data(RESPONSE_TEMP[args.model_name_or_path])
     logger.info(f"{tokenizer.decode(inference_dataset[0]['input_ids'], skip_special_tokens=False)}")
+    logger.info(f"{tokenizer.decode(inference_dataset[6]['input_ids'], skip_special_tokens=False)}")
+    logger.info(f"{tokenizer.decode(inference_dataset[-2]['input_ids'], skip_special_tokens=False)}")
     inference_dataset_token_lengths = [len(inference_dataset[i]["input_ids"]) for i in range(len(inference_dataset))]
     logger.info(f"max token length: {max(inference_dataset_token_lengths)}")
     logger.info(f"min token length: {min(inference_dataset_token_lengths)}")

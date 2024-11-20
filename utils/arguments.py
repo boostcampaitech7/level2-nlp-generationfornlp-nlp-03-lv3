@@ -13,7 +13,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="beomi/Solar-Ko-Recovery-11B",
+        default="beomi/Qwen2.5-7B-Instruct-kowiki-qa-context",
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
             "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
@@ -116,7 +116,7 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "epoch/steps이 끝날때마다 저장"},
     )
     save_total_limit: int = field(
-        default=2,
+        default=None,
         metadata={"help": "가장 좋은 체크포인트 n개만 저장하여 이전 모델을 덮어씌우도록 설정"},
     )
     save_only_model: bool = field(default=False)
@@ -146,11 +146,11 @@ class OurTrainingArguments(SFTConfig):
     )
     # 모델 평가 관련
     metric_for_best_model: Optional[str] = field(
-        default="accuracy",
+        default="eval_loss",
         metadata={"help": "가장 좋은 모델을 평가하기 위한 메트릭 설정" "본 프로젝트에서는 eval_loss를 기본적으로 사용"},
     )
     greater_is_better: bool = field(
-        default=True,
+        default=False,
         metadata={
             "help": "설정한 메트릭에 대해 더 큰 값이 더 좋다 혹은 더 작은 값이 더 좋다 설정"
             "Accuracy는 True 사용 / eval_loss는 False 사용"
@@ -158,7 +158,7 @@ class OurTrainingArguments(SFTConfig):
     )
     # Optimizer 설정
     optim: str = field(
-        default="adamw_8bit",
+        default="adamw_torch",
         metadata={
             "help": "옵티마이저 설정, 다른 옵티마이저 확인을 위해 아래 url에서 OptimizerNames 확인"
             "Default : adamw_torch / QLoRA 사용시 : paged_adamw_8bit"

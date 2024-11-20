@@ -125,6 +125,7 @@ def main():
             optim="adamw_8bit",
             weight_decay=0.01,
             lr_scheduler_type="linear",
+            save_strategy="epoch",
             seed=104,
             output_dir="resources/checkpoint/knowledge",
         ),

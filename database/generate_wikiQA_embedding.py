@@ -1,12 +1,13 @@
 import os
 import sys
 import torch
+import pickle
 import random
 import logging
 import argparse
 import numpy as np
 from transformers import AutoTokenizer
-from datasets import load_dataset
+from datasets import load_from_disk
 
 sys.path.append("../")
 from model.bm25 import BM25Reranker
@@ -39,13 +40,19 @@ def main(args):
     LOGGER.info("*** Building Vector Database ***")
     tokenizer = AutoTokenizer.from_pretrained("beomi/Solar-Ko-Recovery-11B")
 
-    dataset = load_dataset("beomi/kowikitext-qa-ref-detail-preview", split="train")
-    print(dataset)
+    dataset = load_from_disk("../resources/kowikitext")
     title_lst = []
     txt_lst = []
-    for d in dataset:
-        print(d)
-        exit()
+    for i, d in enumerate(dataset):
+        instructions = d["Instruction"]
+        resonings = d["Reasoning"]
+        resoning_answers = d["Reasoning Answer"]
+        outputs = d["Final Answer"]
+        title_lst.append(i)
+        txt_lst.append("\n".join([instructions, resonings, resoning_answers, outputs]))
+    print(title_lst[:2])
+    print(txt_lst[:2])
+    print(f">>> Total number of passages: {len(txt_lst)}")
 
     pickle_file_path = os.path.join(args.save_path, "context_pickle.pkl")
     with open(pickle_file_path, "wb") as file:
@@ -56,23 +63,12 @@ def main(args):
             },
             file,
         )
-    vector_db.build_embedding(
-        wiki_path=args.wiki_path,
-        save_path=args.save_path,
-        save_context=args.save_context,
-        tokenizer=tokenizer,
-        embedding_model=model,
-        pooler=pooler,
-        cpu_workers=args.cpu_workers,
-        gold_passages=None,
-        device=args.device,
-    )
 
     #### Train BM 25 ####
     print(">>> Train BM 25")
     if args.train_bm25:
         bm25_model = BM25Reranker(tokenizer=tokenizer)
-        bm25_model.build_bm25_model(text=vector_db.text, title=vector_db.title, path=args.save_path)
+        bm25_model.build_bm25_model(text=txt_lst, title=None, path=args.save_path)
 
 
 if __name__ == "__main__":
