@@ -90,32 +90,11 @@ def main():
         logger.info(f"{special_tokens_dict}")
 
     # 데이터 불러오기 및 전처리
-    # dm = CausalLMDataModule(
-    #     data_args,
-    #     tokenizer,
-    #     CHAT_TEMPLETE[model_args.model_name_or_path],
-    #     CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
-    # )
-    chat_templete = """As a smart student, answer the given question in Korean.
-Read paragraph, and select only one answer between given choices. Let's think step by step.
-Human: paragraph: {paragraph}
-choices: {choices}
-question: {question}
-Assistant:
-"""
-    chat_templete_plus = """As a smart student, answer the given question in Korean.
-Read paragraph and information, select only one answer between given choices. Let's think step by step.
-Human: paragraph: {paragraph}
-information: {information}
-choices: {choices}
-question: {question}
-Assistant:
-"""
     dm = CausalLMDataModule(
         data_args,
         tokenizer,
-        chat_templete,
-        chat_templete_plus,
+        CHAT_TEMPLETE[model_args.model_name_or_path],
+        CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
     )
     train_dataset, eval_dataset = dm.get_processing_data()
 
@@ -168,7 +147,7 @@ Assistant:
         preprocess_logits_for_metrics=cm.preprocess_logits_for_metrics,
         args=training_args,
     )
-    
+
     mlflow.set_tracking_uri("http://10.28.224.137:30597/")
 
     # experiment를 active하고 experiment instance를 반환.
@@ -176,7 +155,7 @@ Assistant:
     mlflow.set_experiment("hwk_find_model")
     # MLflow autolog 활성화
     mlflow.transformers.autolog()
-    
+
     # Training
     with mlflow.start_run(run_name="run_1"):  # 실험 안 run name
         mlflow.log_param("lora_r", model_args.lora_r)
@@ -186,7 +165,7 @@ Assistant:
         mlflow.log_param("bias", "none")
         mlflow.log_param("lora_alpha", model_args.lora_alpha)
         mlflow.log_param("random_state", 104)
-        
+
         train_result = trainer.train()
         trainer.save_model()
 
@@ -223,6 +202,7 @@ Assistant:
             task="text-generation",
             registered_model_name="hwk_",  # 원하는 실험 이름으로 바꾸기.
         )
+
 
 if __name__ == "__main__":
     main()
