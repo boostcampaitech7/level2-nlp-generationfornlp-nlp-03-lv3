@@ -95,9 +95,9 @@ if __name__ == "__main__":
     # fmt: off
     parser = argparse.ArgumentParser()
     parser.add_argument("--strategy", type=str, default="logit", choices=['logit', 'generation'])
-    parser.add_argument("--model_name_or_path", type=str, default="beomi/Solar-Ko-Recovery-11B")
-    parser.add_argument("--checkpoint", type=str, default="./resources/checkpoint/beomi/Solar-Ko-Recovery-11B/checkpoint-3654")
-    parser.add_argument("--dataset_name", type=str, default="./resources/raw/test_reformat.csv")
+    parser.add_argument("--model_name_or_path", type=str, default="beomi/Qwen2.5-7B-Instruct-kowiki-qa-context")
+    parser.add_argument("--checkpoint", type=str, default="./resources/checkpoint/beomi/Qwen2.5-7B-Instruct-kowiki-qa-context/checkpoint-5481")
+    parser.add_argument("--dataset_name", type=str, default="./resources/processed/test_reformat_with_source_subject_retrieve_.csv")
     parser.add_argument("--truncation", type=bool, default=False)
     parser.add_argument("--padding", type=bool, default=False)
     # fmt: on

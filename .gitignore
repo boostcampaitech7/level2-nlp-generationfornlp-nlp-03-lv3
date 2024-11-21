@@ -1,10 +1,12 @@
 # My custom
 lightning_logs/
 mlruns/
+database/bm25_model/
 resources/checkpoint/
 resources/outputs_gemma/
 resources/wikidump/
 resources/kowikitext/
+resources/selected_kowikitext/
 .idea/
 .DS_Store
 *.pdf

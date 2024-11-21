@@ -1,16 +1,16 @@
 import os
 import sys
 import torch
-import pickle
 import random
 import logging
 import argparse
 import numpy as np
-from transformers import AutoTokenizer
+from tqdm import tqdm
 from datasets import load_from_disk
 
 sys.path.append("../")
-from model.bm25 import BM25Reranker
+from model.bm25 import BM25SModel
+from transformers import AutoTokenizer
 
 LOGGER = logging.getLogger()
 
@@ -40,41 +40,33 @@ def main(args):
     LOGGER.info("*** Building Vector Database ***")
     tokenizer = AutoTokenizer.from_pretrained("beomi/Solar-Ko-Recovery-11B")
 
+    print(f">>> Load data")
     dataset = load_from_disk("../resources/kowikitext")
+    print(dataset)
     title_lst = []
     txt_lst = []
-    for i, d in enumerate(dataset):
+    for i, d in tqdm(enumerate(dataset), total=len(dataset)):
         instructions = d["Instruction"]
         resonings = d["Reasoning"]
         resoning_answers = d["Reasoning Answer"]
         outputs = d["Final Answer"]
         title_lst.append(i)
-        txt_lst.append("\n".join([instructions, resonings, resoning_answers, outputs]))
+        txt_lst.append("\n".join([instructions * 2, resonings, resoning_answers, outputs]))
     print(title_lst[:2])
     print(txt_lst[:2])
     print(f">>> Total number of passages: {len(txt_lst)}")
 
-    pickle_file_path = os.path.join(args.save_path, "context_pickle.pkl")
-    with open(pickle_file_path, "wb") as file:
-        pickle.dump(
-            {
-                "title": title_lst,
-                "text": txt_lst,
-            },
-            file,
-        )
-
     #### Train BM 25 ####
     print(">>> Train BM 25")
     if args.train_bm25:
-        bm25_model = BM25Reranker(tokenizer=tokenizer)
+        bm25_model = BM25SModel(tokenizer=tokenizer)
         bm25_model.build_bm25_model(text=txt_lst, title=None, path=args.save_path)
 
 
 if __name__ == "__main__":
     # fmt: off
     parser = argparse.ArgumentParser(description="Build vector database with wiki text")
-    parser.add_argument("--save_path", type=str, default="./pickles", help="Save directory of faiss index")
+    parser.add_argument("--save_path", type=str, default="./bm25_model", help="Save directory of faiss index")
     parser.add_argument("--save_context", action="store_true", default=True, help="Save text and title with faiss index")
     parser.add_argument("--train_bm25", action="store_true", default=True, help="Train bm25 with the same corpus")
     parser.add_argument("--num_sent", type=int, default=5, help="Number of sentences consisting of a wiki chunk")

@@ -5,7 +5,7 @@ import random
 import numpy as np
 import logging
 import logging.config
-from datasets import load_dataset
+from datasets import load_from_disk
 from transformers import TrainingArguments
 from trl import SFTTrainer
 from unsloth import FastLanguageModel
@@ -45,6 +45,7 @@ def main():
         model,
         r=16,  # Choose any number > 0 ! Suggested 8, 16, 32, 64, 128
         target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+        # target_modules=["q_proj", "k_proj"],
         lora_alpha=16,
         lora_dropout=0,  # Supports any, but = 0 is optimized
         bias="none",  # Supports any, but = "none" is optimized
@@ -99,7 +100,9 @@ def main():
 
         return {"text": texts}
 
-    dataset = load_dataset("beomi/kowikitext-qa-ref-detail-preview", split="train")
+    dataset = load_from_disk("resources/selected_kowikitext")
+    print(dataset)
+
     dataset = dataset.map(
         formatting_prompts_func,
         batched=True,
@@ -113,10 +116,10 @@ def main():
         train_dataset=dataset,
         dataset_text_field="text",
         max_seq_length=2048,
-        dataset_num_proc=2,
+        dataset_num_proc=16,
         packing=False,  # Can make training 5x faster for short sequences.
         args=TrainingArguments(
-            per_device_train_batch_size=8,
+            per_device_train_batch_size=16,
             num_train_epochs=1,  # Set this for 1 full training run.
             learning_rate=5e-5,
             fp16=not is_bfloat16_supported(),
@@ -132,8 +135,8 @@ def main():
     )
     # Training
     trainer_stats = trainer.train()
-    model.save_pretrained("kowikitext-Solar-Ko-Recovery-11B")
-    tokenizer.save_pretrained("kowikitext-Solar-Ko-Recovery-11B")
+    model.save_pretrained("/dev/shm/model/kowikitext-Solar-Ko-Recovery-11B")
+    tokenizer.save_pretrained("/dev/shm/model/kowikitext-Solar-Ko-Recovery-11B")
 
 
 if __name__ == "__main__":
