@@ -84,7 +84,6 @@ def main():
     training_args.bf16 = is_bfloat16_supported()
 
     # 모델 및 토크나이저 불러오기
-    # if model_args.model_name_or_path == "lcw99/llama-3-10b-wiki-240709-f":
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=model_args.model_name_or_path,
         max_seq_length=training_args.max_seq_length,
@@ -160,12 +159,12 @@ def main():
 
     # experiment를 active하고 experiment instance를 반환.
     # 원하는 실험 이름으로 바꾸기.
-    mlflow.set_experiment(".")
+    mlflow.set_experiment("sunghoon")
     # MLflow autolog 활성화
     mlflow.transformers.autolog()
 
     # Training
-    with mlflow.start_run(run_name="."):  # 실험 안 run name
+    with mlflow.start_run(run_name="sunghoon"):  # 실험 안 run name
         mlflow.log_param("lora_r", model_args.lora_r)
         mlflow.log_param("target_modules", ["q_proj", "k_proj"])
         mlflow.log_param("lora_alpha", model_args.lora_alpha)
@@ -208,7 +207,7 @@ def main():
             transformers_model={"model": trainer.model, "tokenizer": tokenizer},
             artifact_path="model",
             task="text-generation",
-            registered_model_name=".",  # 원하는 실험 이름으로 바꾸기.
+            registered_model_name="sunghoon",  # 원하는 실험 이름으로 바꾸기.
         )
 
 

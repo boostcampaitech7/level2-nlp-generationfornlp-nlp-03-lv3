@@ -1,4 +1,4 @@
-BASELINE_CHAT_TEMPLETE = """지문을 읽고 질문에 대해 단계별로 추론하여 답을 구하세요.<start_of_turn>user
+BASELINE_CHAT_TEMPLETE = """지문을 읽고 단계별로 생각하며 정답을 고르세요.<start_of_turn>user
 지문:
 {}
 
@@ -15,7 +15,7 @@ BASELINE_CHAT_TEMPLETE = """지문을 읽고 질문에 대해 단계별로 추�
 """
 BASELINE_RESPONSE_TEMP = "<start_of_turn>model"
 BASELINE_END_TURN = "<end_of_turn>"
-BASELINE_CHAT_TEMPLETE_PLUS = """지문을 읽고 질문에 대해 단계별로 추론하여 답을 구하세요.<start_of_turn>user
+BASELINE_CHAT_TEMPLETE_PLUS = """지문을 읽고 단계별로 생각하며 정답을 고르세요.<start_of_turn>user
 지문:
 {}
 
@@ -36,7 +36,7 @@ BASELINE_CHAT_TEMPLETE_PLUS = """지문을 읽고 질문에 대해 단계별로 
 
 
 QWEN_CHAT_TEMPLETE = """<|im_start|>system 
-지문을 읽고 질문에 대해 단계별로 추론하여 답을 구하세요.<|im_end|>
+지문을 읽고 단계별로 생각하며 정답을 고르세요.<|im_end|>
 <|im_start|>user
 지문: 
 {}
@@ -52,7 +52,7 @@ QWEN_CHAT_TEMPLETE = """<|im_start|>system
 <|im_start|>assistant
 {}<|im_end|>"""
 QWEN_CHAT_TEMPLETE_R = """<|im_start|>system 
-지문을 읽고 질문에 대해 단계별로 추론하여 답을 구하세요.<|im_end|>
+지문을 읽고 단계별로 생각하며 정답을 고르세요.<|im_end|>
 <|im_start|>user
 지문: 
 {}
@@ -73,7 +73,7 @@ QWEN_CHAT_TEMPLETE_R = """<|im_start|>system
 QWEN_RESPONSE_TEMP = "<|im_start|>assistant"
 QWEN_END_TURN = "<|im_end|>"
 QWEN_CHAT_TEMPLETE_PLUS = """<|im_start|>system 
-지문을 읽고 질문에 대해 단계별로 추론하여 답을 구하세요.<|im_end|>
+지문을 읽고 단계별로 생각하며 정답을 고르세요.<|im_end|>
 <|im_start|>user
 지문: 
 {}
@@ -92,7 +92,7 @@ QWEN_CHAT_TEMPLETE_PLUS = """<|im_start|>system
 <|im_start|>assistant
 {}<|im_end|>"""
 QWEN_CHAT_TEMPLETE_PLUS_R = """<|im_start|>system 
-지문을 읽고 질문에 대해 단계별로 추론하여 답을 구하세요.<|im_end|>
+지문을 읽고 단계별로 생각하며 정답을 고르세요.<|im_end|>
 <|im_start|>user
 지문: 
 {}
@@ -116,7 +116,7 @@ QWEN_CHAT_TEMPLETE_PLUS_R = """<|im_start|>system
 
 
 LLAMA3_CHAT_TEMPLETE = """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-지문을 읽고 질문에 대해 단계별로 추론하여 답을 구하세요.<|eot_id|><|start_header_id|>user<|end_header_id|>
+지문을 읽고 단계별로 생각하며 정답을 고르세요.<|eot_id|><|start_header_id|>user<|end_header_id|>
 지문:
 {}
 
@@ -133,7 +133,7 @@ LLAMA3_CHAT_TEMPLETE = """<|begin_of_text|><|start_header_id|>system<|end_header
 LLAMA3_RESPONSE_TEMP = "<|start_header_id|>assistant<|end_header_id|>"
 LLAMA3_END_TURN = "<|eot_id|>"
 LLAMA3_CHAT_TEMPLETE_PLUS = """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-지문을 읽고 질문에 대해 단계별로 추론하여 답을 구하세요.<|eot_id|><|start_header_id|>user<|end_header_id|>
+지문을 읽고 단계별로 생각하며 정답을 고르세요.<|eot_id|><|start_header_id|>user<|end_header_id|>
 지문:
 {}
 
