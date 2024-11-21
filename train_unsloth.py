@@ -89,34 +89,14 @@ def main():
         model.resize_token_embeddings(len(tokenizer))
         logger.info(f"{special_tokens_dict}")
 
-    # 데이터 불러오기 및 전처리
-    # dm = CausalLMDataModule(
-    #     data_args,
-    #     tokenizer,
-    #     CHAT_TEMPLETE[model_args.model_name_or_path],
-    #     CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
-    # )
-    chat_templete = """As a smart student, answer the given question in Korean.
-Read paragraph, and select only one answer between given choices. Let's think step by step.
-Human: paragraph: {paragraph}
-choices: {choices}
-question: {question}
-Assistant:
-"""
-    chat_templete_plus = """As a smart student, answer the given question in Korean.
-Read paragraph and information, select only one answer between given choices. Let's think step by step.
-Human: paragraph: {paragraph}
-information: {information}
-choices: {choices}
-question: {question}
-Assistant:
-"""
+    #데이터 불러오기 및 전처리
     dm = CausalLMDataModule(
         data_args,
         tokenizer,
-        chat_templete,
-        chat_templete_plus,
+        CHAT_TEMPLETE[model_args.model_name_or_path],
+        CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
     )
+
     train_dataset, eval_dataset = dm.get_processing_data()
 
     logger.info(f"{tokenizer.decode(train_dataset[0]['input_ids'], skip_special_tokens=False)}")
@@ -173,12 +153,12 @@ Assistant:
 
     # experiment를 active하고 experiment instance를 반환.
     # 원하는 실험 이름으로 바꾸기.
-    mlflow.set_experiment("hwk_find_model")
+    mlflow.set_experiment(".")
     # MLflow autolog 활성화
     mlflow.transformers.autolog()
     
     # Training
-    with mlflow.start_run(run_name="run_1"):  # 실험 안 run name
+    with mlflow.start_run(run_name="."):  # 실험 안 run name
         mlflow.log_param("lora_r", model_args.lora_r)
         mlflow.log_param("target_modules", ["q_proj", "k_proj"])
         mlflow.log_param("lora_alpha", model_args.lora_alpha)
@@ -221,7 +201,7 @@ Assistant:
             transformers_model={"model": trainer.model, "tokenizer": tokenizer},
             artifact_path="model",
             task="text-generation",
-            registered_model_name="hwk_",  # 원하는 실험 이름으로 바꾸기.
+            registered_model_name=".",  # 원하는 실험 이름으로 바꾸기.
         )
 
 if __name__ == "__main__":
