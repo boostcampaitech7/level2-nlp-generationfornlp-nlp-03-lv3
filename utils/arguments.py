@@ -13,11 +13,15 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="beomi/Qwen2.5-7B-Instruct-kowiki-qa-context",
+        default="hungun/Qwen2.5-14B-Instruct-kowiki-qa",
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
             "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
             "beomi/Solar-Ko-Recovery-11B"
+            "hungun/Qwen2.5-14B-Instruct-kowiki-qa"
+            "ludobico/gemma2_9b_it_1ep_kowiki"
+            "MLP-KTLim/llama-3-Korean-Bllossom-8B"
+            "lcw99/llama-3-10b-wiki-240709-f"
         },
     )
     quantization: bool = field(
@@ -42,7 +46,7 @@ class DataTrainingArguments:
 
     # 학습 데이터 불러오기
     dataset_name: str = field(
-        default="./resources/raw/train_reformat.csv",
+        default="./resources/merge/curr_sat_dataset.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 토크나이저 설정
@@ -158,7 +162,7 @@ class OurTrainingArguments(SFTConfig):
     )
     # Optimizer 설정
     optim: str = field(
-        default="adamw_torch",
+        default="adamw_8bit",
         metadata={
             "help": "옵티마이저 설정, 다른 옵티마이저 확인을 위해 아래 url에서 OptimizerNames 확인"
             "Default : adamw_torch / QLoRA 사용시 : paged_adamw_8bit"

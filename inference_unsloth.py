@@ -95,9 +95,9 @@ if __name__ == "__main__":
     # fmt: off
     parser = argparse.ArgumentParser()
     parser.add_argument("--strategy", type=str, default="logit", choices=['logit', 'generation'])
-    parser.add_argument("--model_name_or_path", type=str, default="beomi/Qwen2.5-7B-Instruct-kowiki-qa-context")
-    parser.add_argument("--checkpoint", type=str, default="./resources/checkpoint/beomi/Qwen2.5-7B-Instruct-kowiki-qa-context/checkpoint-5481")
-    parser.add_argument("--dataset_name", type=str, default="./resources/processed/test_reformat_with_source_subject_retrieve_.csv")
+    parser.add_argument("--model_name_or_path", type=str, default="beomi/Solar-Ko-Recovery-11B")
+    parser.add_argument("--checkpoint", type=str, default="./resources/checkpoint/dev/shm/model/kowikitext-Solar-Ko-Recovery-11B/checkpoint-2792")
+    parser.add_argument("--dataset_name", type=str, default="./resources/raw/test_reformat.csv")
     parser.add_argument("--truncation", type=bool, default=False)
     parser.add_argument("--padding", type=bool, default=False)
     # fmt: on
@@ -105,13 +105,14 @@ if __name__ == "__main__":
 
     model, tokenizer = FastLanguageModel.from_pretrained(args.checkpoint, dtype=None)
     FastLanguageModel.for_inference(model)  # Enable native 2x faster inference
+
     # 데이터 불러오기 및 전처리
     dm = CausalLMDataModule(
         args,
         tokenizer,
         CHAT_TEMPLETE[args.model_name_or_path],
         CHAT_TEMPLETE_PLUS[args.model_name_or_path],
-        CHAT_TEMPLETE_R[args.model_name_or_path] if args.model_name_or_path != "beomi/Solar-Ko-Recovery-11B" else None,
+        # CHAT_TEMPLETE_R[args.model_name_or_path] if args.model_name_or_path != "beomi/Solar-Ko-Recovery-11B" else None,
     )
     raw_dataset, inference_dataset = dm.get_inference_data(RESPONSE_TEMP[args.model_name_or_path])
     logger.info(f"{tokenizer.decode(inference_dataset[0]['input_ids'], skip_special_tokens=False)}")

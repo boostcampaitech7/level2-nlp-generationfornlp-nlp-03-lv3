@@ -7,6 +7,7 @@ resources/outputs_gemma/
 resources/wikidump/
 resources/kowikitext/
 resources/selected_kowikitext/
+.etc/
 .idea/
 .DS_Store
 *.pdf

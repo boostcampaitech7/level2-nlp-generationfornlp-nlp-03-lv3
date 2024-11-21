@@ -39,30 +39,38 @@ torch.backends.cudnn.benchmark = False
 
 CHAT_TEMPLETE = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE,
-    "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE,
+    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_CHAT_TEMPLETE,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_CHAT_TEMPLETE,
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE,
+    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE,
+    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE,
 }
 CHAT_TEMPLETE_PLUS = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE_PLUS,
-    "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE_PLUS,
+    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_CHAT_TEMPLETE_PLUS,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE_PLUS,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_CHAT_TEMPLETE_PLUS,
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE_PLUS,
+    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE_PLUS,
+    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE_PLUS,
 }
 CHAT_TEMPLETE_R = {
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": [QWEN_CHAT_TEMPLETE_R, QWEN_CHAT_TEMPLETE_PLUS_R],
 }
 RESPONSE_TEMP = {
     "beomi/gemma-ko-2b": BASELINE_RESPONSE_TEMP,
-    "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_RESPONSE_TEMP,
+    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_RESPONSE_TEMP,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_RESPONSE_TEMP,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_RESPONSE_TEMP,
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_RESPONSE_TEMP,
+    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_RESPONSE_TEMP,
+    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_RESPONSE_TEMP,
 }
 END_TURN = {
     "beomi/gemma-ko-2b": BASELINE_END_TURN,
-    "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_END_TURN,
+    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_END_TURN,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_END_TURN,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_END_TURN,
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_END_TURN,
+    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_END_TURN,
+    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_END_TURN,
 }
 
 
@@ -76,18 +84,17 @@ def main():
     training_args.bf16 = is_bfloat16_supported()
 
     # 모델 및 토크나이저 불러오기
+    # if model_args.model_name_or_path == "lcw99/llama-3-10b-wiki-240709-f":
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=model_args.model_name_or_path,
         max_seq_length=training_args.max_seq_length,
         dtype=None,
         load_in_4bit=model_args.quantization,
     )
-    if model_args.model_name_or_path == "beomi/Solar-Ko-Recovery-11B":
-        token_list = ["<|im_start|>"]
-        special_tokens_dict = {"additional_special_tokens": token_list}
-        tokenizer.add_special_tokens(special_tokens_dict)
-        model.resize_token_embeddings(len(tokenizer))
-        logger.info(f"{special_tokens_dict}")
+    if model_args.model_name_or_path == "/dev/shm/lcw99/llama-3-10b-wiki-240709-f":
+        model_args.model_name_or_path = "lcw99/llama-3-10b-wiki-240709-f"
+
+    logger.info(f">>> {model_args.model_name_or_path}")
 
     # 데이터 불러오기 및 전처리
     dm = CausalLMDataModule(
@@ -207,3 +214,12 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+"""
+if model_args.model_name_or_path == "beomi/Solar-Ko-Recovery-11B":
+    token_list = ["<|im_start|>", "<|im_end|>"]
+    special_tokens_dict = {"additional_special_tokens": token_list}
+    tokenizer.add_special_tokens(special_tokens_dict)
+    model.resize_token_embeddings(len(tokenizer))
+    logger.info(f"{special_tokens_dict}")
+"""
