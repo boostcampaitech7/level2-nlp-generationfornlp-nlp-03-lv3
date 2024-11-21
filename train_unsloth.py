@@ -14,6 +14,8 @@ from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
 from transformers import HfArgumentParser, AutoTokenizer
 from huggingface_hub import login
+import mlflow
+import mlflow.transformers
 
 # fmt: on
 hf_token = "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"
@@ -145,37 +147,53 @@ def main():
         preprocess_logits_for_metrics=cm.preprocess_logits_for_metrics,
         args=training_args,
     )
+    
+    mlflow.set_tracking_uri("http://10.28.224.137:30597/")
 
+    # experiment를 active하고 experiment instance를 반환.
+    # 원하는 실험 이름으로 바꾸기.
+    mlflow.set_experiment("Exp_name")
+    # MLflow autolog 활성화
+    mlflow.transformers.autolog()
+    
     # Training
-    train_result = trainer.train()
-    trainer.save_model()
+    with mlflow.start_run(run_name="run"):  # 실험 안 run name
+        train_result = trainer.train()
+        trainer.save_model()
 
-    metrics = train_result.metrics
-    metrics["train_samples"] = len(train_dataset)
+        metrics = train_result.metrics
+        metrics["train_samples"] = len(train_dataset)
 
-    trainer.log_metrics("train", metrics)
-    trainer.save_metrics("train", metrics)
-    trainer.save_state()
+        trainer.log_metrics("train", metrics)
+        trainer.save_metrics("train", metrics)
+        trainer.save_state()
 
-    output_train_file = os.path.join(training_args.output_dir, "train_results.txt")
-    with open(output_train_file, "w") as writer:
-        logger.info("***** Train results *****")
-        for key, value in sorted(train_result.metrics.items()):
-            logger.info(f"  {key} = {value}")
-            writer.write(f"{key} = {value}\n")
+        output_train_file = os.path.join(training_args.output_dir, "train_results.txt")
+        with open(output_train_file, "w") as writer:
+            logger.info("***** Train results *****")
+            for key, value in sorted(train_result.metrics.items()):
+                logger.info(f"  {key} = {value}")
+                writer.write(f"{key} = {value}\n")
 
-    # Training state 저장
-    trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))
+        # Training state 저장
+        trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))
 
-    # Evaluation
-    logger.info("***** Evaluate *****")
-    metrics = trainer.evaluate()
+        # Evaluation
+        logger.info("***** Evaluate *****")
+        metrics = trainer.evaluate()
 
-    metrics["eval_samples"] = len(eval_dataset)
+        metrics["eval_samples"] = len(eval_dataset)
 
-    trainer.log_metrics("eval", metrics)
-    trainer.save_metrics("eval", metrics)
+        trainer.log_metrics("eval", metrics)
+        trainer.save_metrics("eval", metrics)
 
+        # 모델 레지스트리에 등록
+        mlflow.transformers.log_model(
+            transformers_model={"model": trainer.model, "tokenizer": tokenizer},
+            artifact_path="model",
+            task="text-generation",
+            registered_model_name="Gen_NLP_exp",  # 원하는 실험 이름으로 바꾸기.
+        )
 
 if __name__ == "__main__":
     main()
