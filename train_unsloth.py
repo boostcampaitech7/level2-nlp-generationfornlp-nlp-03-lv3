@@ -12,7 +12,7 @@ from utils.arguments import ModelArguments, DataTrainingArguments, OurTrainingAr
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
-from transformers import HfArgumentParser, AutoTokenizer
+from transformers import HfArgumentParser
 from huggingface_hub import login
 import mlflow
 import mlflow.transformers
@@ -96,6 +96,7 @@ def main():
         CHAT_TEMPLETE[model_args.model_name_or_path],
         CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
     )
+
     train_dataset, eval_dataset = dm.get_processing_data()
 
     logger.info(f"{tokenizer.decode(train_dataset[0]['input_ids'], skip_special_tokens=False)}")
@@ -152,12 +153,12 @@ def main():
 
     # experiment를 active하고 experiment instance를 반환.
     # 원하는 실험 이름으로 바꾸기.
-    mlflow.set_experiment("hwk_find_model")
+    mlflow.set_experiment(".")
     # MLflow autolog 활성화
     mlflow.transformers.autolog()
 
     # Training
-    with mlflow.start_run(run_name="run_1"):  # 실험 안 run name
+    with mlflow.start_run(run_name="."):  # 실험 안 run name
         mlflow.log_param("lora_r", model_args.lora_r)
         mlflow.log_param("target_modules", ["q_proj", "k_proj"])
         mlflow.log_param("lora_alpha", model_args.lora_alpha)
@@ -200,7 +201,7 @@ def main():
             transformers_model={"model": trainer.model, "tokenizer": tokenizer},
             artifact_path="model",
             task="text-generation",
-            registered_model_name="hwk_",  # 원하는 실험 이름으로 바꾸기.
+            registered_model_name=".",  # 원하는 실험 이름으로 바꾸기.
         )
 
 
