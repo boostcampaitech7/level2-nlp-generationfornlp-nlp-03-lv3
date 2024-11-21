@@ -90,11 +90,32 @@ def main():
         logger.info(f"{special_tokens_dict}")
 
     # 데이터 불러오기 및 전처리
+    # dm = CausalLMDataModule(
+    #     data_args,
+    #     tokenizer,
+    #     CHAT_TEMPLETE[model_args.model_name_or_path],
+    #     CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
+    # )
+    chat_templete = """As a smart student, answer the given question in Korean.
+Read paragraph, and select only one answer between given choices. Let's think step by step.
+Human: paragraph: {paragraph}
+choices: {choices}
+question: {question}
+Assistant:
+"""
+    chat_templete_plus = """As a smart student, answer the given question in Korean.
+Read paragraph and information, select only one answer between given choices. Let's think step by step.
+Human: paragraph: {paragraph}
+information: {information}
+choices: {choices}
+question: {question}
+Assistant:
+"""
     dm = CausalLMDataModule(
         data_args,
         tokenizer,
-        CHAT_TEMPLETE[model_args.model_name_or_path],
-        CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
+        chat_templete,
+        chat_templete_plus,
     )
     train_dataset, eval_dataset = dm.get_processing_data()
 
@@ -152,12 +173,20 @@ def main():
 
     # experiment를 active하고 experiment instance를 반환.
     # 원하는 실험 이름으로 바꾸기.
-    mlflow.set_experiment("Exp_name")
+    mlflow.set_experiment("hwk_find_model")
     # MLflow autolog 활성화
     mlflow.transformers.autolog()
     
     # Training
-    with mlflow.start_run(run_name="run"):  # 실험 안 run name
+    with mlflow.start_run(run_name="run_1"):  # 실험 안 run name
+        mlflow.log_param("lora_r", model_args.lora_r)
+        mlflow.log_param("target_modules", ["q_proj", "k_proj"])
+        mlflow.log_param("lora_alpha", model_args.lora_alpha)
+        mlflow.log_param("lora_dropout", 0)
+        mlflow.log_param("bias", "none")
+        mlflow.log_param("lora_alpha", model_args.lora_alpha)
+        mlflow.log_param("random_state", 104)
+        
         train_result = trainer.train()
         trainer.save_model()
 
@@ -192,7 +221,7 @@ def main():
             transformers_model={"model": trainer.model, "tokenizer": tokenizer},
             artifact_path="model",
             task="text-generation",
-            registered_model_name="Gen_NLP_exp",  # 원하는 실험 이름으로 바꾸기.
+            registered_model_name="hwk_",  # 원하는 실험 이름으로 바꾸기.
         )
 
 if __name__ == "__main__":
