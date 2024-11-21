@@ -1,6 +1,16 @@
 import pandas as pd
 from ast import literal_eval
 from datasets import Dataset
+from sklearn.model_selection import KFold
+import logging
+import logging.config
+
+logger = logging.getLogger("gen")
+logger.setLevel(logging.INFO)
+fmt = logging.Formatter("%(asctime)s: [ %(message)s ]", "%m/%d/%Y %I:%M:%S %p")
+console = logging.StreamHandler()
+console.setFormatter(fmt)
+logger.addHandler(console)
 
 
 def from_processed(dir: str):
@@ -61,7 +71,7 @@ class CausalLMDataModule:
             "attention_mask": outputs["attention_mask"],
         }
 
-    def get_processing_data(self):
+    def get_processing_data(self, use_kfold=False, k_fold=5, fold_num=0):
         tokenized_dataset = self.datasets.map(
             self._tokenize,
             remove_columns=list(self.datasets.features),
@@ -70,9 +80,45 @@ class CausalLMDataModule:
             load_from_cache_file=True,
             desc="Tokenizing",
         )
-        tokenized_dataset = tokenized_dataset.train_test_split(test_size=0.1, seed=104)
-        train_dataset = tokenized_dataset["train"]
-        eval_dataset = tokenized_dataset["test"]
+        # tokenized_dataset = tokenized_dataset.train_test_split(test_size=0.1, seed=104)
+        # train_dataset = tokenized_dataset["train"]
+        # eval_dataset = tokenized_dataset["test"]
+        # return train_dataset, eval_dataset
+        if use_kfold:
+            df = tokenized_dataset.to_pandas()
+            kf = KFold(n_splits=k_fold, shuffle=True, random_state=104)
+            
+            # 모든 fold의 인덱스를 미리 생성
+            all_folds = list(kf.split(df))
+            
+            # 디버깅: 현재 fold 번호와 인덱스 출력
+            logger.info(f"\nFold {fold_num} 인덱스 정보:")
+            train_indices, val_indices = all_folds[fold_num]
+            logger.info(f"Train 인덱스 처음 5개: {train_indices[:5]}")
+            logger.info(f"Validation 인덱스 처음 5개: {val_indices[:5]}")
+            
+            train_dataset = Dataset.from_pandas(df.iloc[train_indices])
+            eval_dataset = Dataset.from_pandas(df.iloc[val_indices])
+            
+            # 데이터셋 크기 출력
+            logger.info(f"\n데이터셋 크기:")
+            logger.info(f"Train set: {len(train_dataset)}")
+            logger.info(f"Eval set: {len(eval_dataset)}")
+        
+        else:
+            tokenized_dataset = tokenized_dataset.train_test_split(test_size=0.1, seed=104)
+            train_dataset = tokenized_dataset["train"]
+            eval_dataset = tokenized_dataset["test"]
+
+        # train_indices의 처음 3개 값을 사용
+        logger.info("\ntrain 데이터셋의 처음 3개 샘플:")
+        for idx in train_indices[:3]:
+            logger.info(f"{self.tokenizer.decode(tokenized_dataset[int(idx)]['input_ids'], skip_special_tokens=False)}")
+
+        logger.info("\neval 데이터셋의 처음 3개 샘플:")
+        for idx in val_indices[:3]:
+            logger.info(f"{self.tokenizer.decode(tokenized_dataset[int(idx)]['input_ids'], skip_special_tokens=False)}")
+        
         return train_dataset, eval_dataset
 
     def _tokenize_inference(self, instance):

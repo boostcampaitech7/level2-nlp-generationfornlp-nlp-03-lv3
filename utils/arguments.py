@@ -20,6 +20,18 @@ class ModelArguments:
             "beomi/Solar-Ko-Recovery-11B"
         },
     )
+    use_kfold: bool = field(
+        default=False,
+        metadata={"help": "k-fold 사용 여부"}
+    )
+    k_fold: int = field(
+        default = 5,
+        metadata={"help": "k-fold에서 사용할 k값"}
+    )
+    fold_num: int = field(
+        default=0,
+        metadata={"help": "현재 학습 중인 fold 번호"}
+    )
     quantization: bool = field(
         default=False,
         metadata={"help": "QLoRA(4bit) 사용할지 안할지, 만약 사용한다면 optim 수정, 대신 학습 속도가 느려짐"},
@@ -42,7 +54,7 @@ class DataTrainingArguments:
 
     # 학습 데이터 불러오기
     dataset_name: str = field(
-        default="./resources/raw/train_reformat.csv",
+        default="./resources/aug/result_3/final_aug_cleaned.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 토크나이저 설정
@@ -69,7 +81,7 @@ class OurTrainingArguments(SFTConfig):
 
     # 기본 학습 설정
     output_dir: Optional[str] = field(
-        default="./resources/checkpoint/",
+        default="./resources/checkpoint/fold/4",
         metadata={"help": "체크포인트와 모델 출력을 저장할 디렉터리 경로"},
     )
     max_seq_length: int = field(
