@@ -107,3 +107,81 @@ QWEN_CHAT_TEMPLETE_PLUS = """<|im_start|>system
 정답:<|im_end|>
 <|im_start|>assistant
 {}<|im_end|>"""
+
+
+SOLAR_CHAT_TEMPLETE = """지문을 읽고 질문에 대해 단계별로 추로한며 답을 구하세요.<|im_start|>user
+지문: 
+{}
+
+질문: 
+{}
+
+선택지: 
+{}
+
+1, 2, 3, 4, 5 중에 하나를 정답으로 고르세요.
+정답:</s>
+<|im_start|>assistant
+{}</s>"""
+SOLAR_RESPONSE_TEMP = "<|im_start|>assistant"
+SOLAR_END_TURN = "</s>"
+SOLAR_CHAT_TEMPLETE_PLUS = """지문을 읽고 질문에 대해 단계별로 추로한며 답을 구하세요.<|im_start|>user
+지문: 
+{}
+
+질문: 
+{}
+
+<보기>: 
+{}
+
+선택지: 
+{}
+
+1, 2, 3, 4, 5 중에 하나를 정답으로 고르세요.
+정답:</s>
+<|im_start|>assistant
+{}</s>"""
+
+
+KoAlpaca_CHAT_TEMPLETE = """<|prompt|>
+지문을 읽고 다음 질문에 답변하세요.
+
+지문:
+{}
+
+질문:
+{}
+
+선택지:
+{}
+
+정답을 1, 2, 3, 4 중 하나로 고르세요.
+<|end|>
+<|answer|>
+{}
+<|end|>
+"""
+KoAlpaca_RESPONSE_TEMP = "<|answer|>"
+KoAlpaca_END_TURN = "<|end|>"
+KoAlpaca_CHAT_TEMPLETE_PLUS = """<|prompt|>
+지문을 읽고 다음 질문에 답변하세요.
+
+지문:
+{}
+
+질문:
+{}
+
+<보기>:
+{}
+
+선택지:
+{}
+
+정답을 1, 2, 3, 4 중 하나로 고르세요.
+<|end|>
+<|answer|>
+{}
+<|end|>
+"""

@@ -12,10 +12,11 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="beomi/Qwen2.5-7B-Instruct-kowiki-qa-context",
+        default="beomi/KoAlpaca-RealQA-Solar-Ko-Recovery-11B-Merged",
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
             "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
+            "beomi/Solar-Ko-Recovery-11B / beomi/KoAlpaca-RealQA-Solar-Ko-Recovery-11B-Merged"
         },
     )
     quantization: bool = field(
@@ -40,7 +41,7 @@ class DataTrainingArguments:
 
     # 학습 데이터 불러오기
     dataset_name: str = field(
-        default="./resources/raw/train_reformat.csv",
+        default="./resources/auged/sat_world_auged_train_reformat_paragraph.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 토크나이저 설정
@@ -71,7 +72,7 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "체크포인트와 모델 출력을 저장할 디렉터리 경로"},
     )
     max_seq_length: int = field(
-        default=2000,
+        default=3000,
         metadata={
             "help": "The maximum total input sequence length after tokenization. Sequences longer "
             "than this will be truncated, sequences shorter will be padded."
