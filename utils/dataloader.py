@@ -1,7 +1,7 @@
 import pandas as pd
 from ast import literal_eval
 from datasets import Dataset
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 import logging
 import logging.config
 
@@ -15,6 +15,9 @@ logger.addHandler(console)
 
 def from_processed(dir: str):
     df = pd.read_csv(dir)
+    
+    df["domain_binary"] = df["domain"].apply(lambda x: "국어" if x in ["국어", "KLUE-MRC"] else "사회")
+    
     df["choices"] = [
         "\n".join([f"{idx + 1} - {choice.strip()}" for idx, choice in enumerate(literal_eval(x))])
         for x in df["choices"]
@@ -72,6 +75,9 @@ class CausalLMDataModule:
         }
 
     def get_processing_data(self, use_kfold=False, k_fold=5, fold_num=0):
+        
+        domain_labels = self.datasets.to_pandas()['domain_binary']
+        
         tokenized_dataset = self.datasets.map(
             self._tokenize,
             remove_columns=list(self.datasets.features),
@@ -86,16 +92,24 @@ class CausalLMDataModule:
         # return train_dataset, eval_dataset
         if use_kfold:
             df = tokenized_dataset.to_pandas()
-            kf = KFold(n_splits=k_fold, shuffle=True, random_state=104)
+            df['domain_binary'] = domain_labels
+            kf = StratifiedKFold(n_splits=k_fold, shuffle=True, random_state=104)
             
             # 모든 fold의 인덱스를 미리 생성
-            all_folds = list(kf.split(df))
+            all_folds = list(kf.split(df, df['domain_binary']))
             
             # 디버깅: 현재 fold 번호와 인덱스 출력
             logger.info(f"\nFold {fold_num} 인덱스 정보:")
             train_indices, val_indices = all_folds[fold_num]
             logger.info(f"Train 인덱스 처음 5개: {train_indices[:5]}")
             logger.info(f"Validation 인덱스 처음 5개: {val_indices[:5]}")
+            
+            train_domain_dist = df.iloc[train_indices]['domain_binary'].value_counts(normalize=True)
+            val_domain_dist = df.iloc[val_indices]['domain_binary'].value_counts(normalize=True)
+            
+            logger.info(f"\nFold {fold_num} 도메인 분포:")
+            logger.info(f"Train 도메인 분포:\n{train_domain_dist}")
+            logger.info(f"Validation 도메인 분포:\n{val_domain_dist}")
             
             train_dataset = Dataset.from_pandas(df.iloc[train_indices])
             eval_dataset = Dataset.from_pandas(df.iloc[val_indices])
@@ -105,14 +119,6 @@ class CausalLMDataModule:
             logger.info(f"Train set: {len(train_dataset)}")
             logger.info(f"Eval set: {len(eval_dataset)}")
             
-            # logger.info("\ntrain 데이터셋의 처음 3개 샘플:")
-            # for idx in train_indices[:3]:
-            #     logger.info(f"{self.tokenizer.decode(tokenized_dataset[int(idx)]['input_ids'], skip_special_tokens=False)}")
-
-            # logger.info("\neval 데이터셋의 처음 3개 샘플:")
-            # for idx in val_indices[:3]:
-            #     logger.info(f"{self.tokenizer.decode(tokenized_dataset[int(idx)]['input_ids'], skip_special_tokens=False)}")
-        
         else:
             tokenized_dataset = tokenized_dataset.train_test_split(test_size=0.1, seed=104)
             train_dataset = tokenized_dataset["train"]

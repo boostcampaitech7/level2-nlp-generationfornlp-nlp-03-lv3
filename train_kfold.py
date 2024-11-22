@@ -79,11 +79,10 @@ def main():
     # MLflow autolog 활성화
     mlflow.transformers.autolog()
     
-    total_folds = model_args.k_fold
-    for fold_num in range(total_folds):
-        logger.info(f"Training fold {fold_num + 1}/{total_folds}")
+    for fold_num in range(model_args.k_fold):
+        logger.info(f"Training fold {fold_num + 1}/{model_args.k_fold}")
         
-        fold_output_dir = os.path.join(training_args.output_dir, f"fold_{fold_num}")
+        fold_output_dir = os.path.join(training_args.output_dir, f"sfold_{fold_num}")
         training_args.output_dir = fold_output_dir
 
     # 토크나이저 불러오기
@@ -104,7 +103,7 @@ def main():
         
         train_dataset, eval_dataset = dm.get_processing_data(
             use_kfold=True,
-            k_fold=total_folds, 
+            k_fold=model_args.k_fold,
             fold_num=fold_num
         )
 
@@ -184,7 +183,7 @@ def main():
         )
 
         # Training
-        with mlflow.start_run(run_name=f"k fold_{fold_num}"):  # 실험 안 run name
+        with mlflow.start_run(run_name=f"StratifiedKFold_{fold_num}"):  # 실험 안 run name
             mlflow.log_params(lora_config.to_dict())
             train_result = trainer.train()
             trainer.save_model()
