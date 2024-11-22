@@ -104,6 +104,14 @@ class CausalLMDataModule:
             logger.info(f"\n데이터셋 크기:")
             logger.info(f"Train set: {len(train_dataset)}")
             logger.info(f"Eval set: {len(eval_dataset)}")
+            
+            # logger.info("\ntrain 데이터셋의 처음 3개 샘플:")
+            # for idx in train_indices[:3]:
+            #     logger.info(f"{self.tokenizer.decode(tokenized_dataset[int(idx)]['input_ids'], skip_special_tokens=False)}")
+
+            # logger.info("\neval 데이터셋의 처음 3개 샘플:")
+            # for idx in val_indices[:3]:
+            #     logger.info(f"{self.tokenizer.decode(tokenized_dataset[int(idx)]['input_ids'], skip_special_tokens=False)}")
         
         else:
             tokenized_dataset = tokenized_dataset.train_test_split(test_size=0.1, seed=104)
@@ -111,13 +119,13 @@ class CausalLMDataModule:
             eval_dataset = tokenized_dataset["test"]
 
         # train_indices의 처음 3개 값을 사용
-        logger.info("\ntrain 데이터셋의 처음 3개 샘플:")
-        for idx in train_indices[:3]:
-            logger.info(f"{self.tokenizer.decode(tokenized_dataset[int(idx)]['input_ids'], skip_special_tokens=False)}")
+            logger.info("\ntrain 데이터셋의 처음 3개 샘플:")
+            for i in range(3):
+                logger.info(f"{self.tokenizer.decode(train_dataset[i]['input_ids'], skip_special_tokens=False)}")
 
-        logger.info("\neval 데이터셋의 처음 3개 샘플:")
-        for idx in val_indices[:3]:
-            logger.info(f"{self.tokenizer.decode(tokenized_dataset[int(idx)]['input_ids'], skip_special_tokens=False)}")
+            logger.info("\neval 데이터셋의 처음 3개 샘플:")
+            for i in range(3):
+                logger.info(f"{self.tokenizer.decode(eval_dataset[i]['input_ids'], skip_special_tokens=False)}")
         
         return train_dataset, eval_dataset
 
