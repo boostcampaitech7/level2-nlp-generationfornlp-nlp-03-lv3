@@ -159,12 +159,12 @@ def main():
 
     # experiment를 active하고 experiment instance를 반환.
     # 원하는 실험 이름으로 바꾸기.
-    mlflow.set_experiment("sunghoon")
+    mlflow.set_experiment("lucia")
     # MLflow autolog 활성화
     mlflow.transformers.autolog()
 
     # Training
-    with mlflow.start_run(run_name="sunghoon"):  # 실험 안 run name
+    with mlflow.start_run(run_name="luca_data"):  # 실험 안 run name
         mlflow.log_param("lora_r", model_args.lora_r)
         mlflow.log_param("target_modules", ["q_proj", "k_proj"])
         mlflow.log_param("lora_alpha", model_args.lora_alpha)
@@ -207,7 +207,7 @@ def main():
             transformers_model={"model": trainer.model, "tokenizer": tokenizer},
             artifact_path="model",
             task="text-generation",
-            registered_model_name="sunghoon",  # 원하는 실험 이름으로 바꾸기.
+            registered_model_name="lucia_data",  # 원하는 실험 이름으로 바꾸기.
         )
 
 

@@ -46,7 +46,7 @@ class DataTrainingArguments:
 
     # 학습 데이터 불러오기
     dataset_name: str = field(
-        default="./resources/merge/curr_sat_dataset.csv",
+        default="./resources/auged/sat_world_auged_train_reformat_paragraph.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 토크나이저 설정
