@@ -15,9 +15,7 @@ logger.addHandler(console)
 
 def from_processed(dir: str):
     df = pd.read_csv(dir)
-    
-    df["domain_binary"] = df["domain"].apply(lambda x: "국어" if x in ["국어", "KLUE-MRC"] else "사회")
-    
+
     df["choices"] = [
         "\n".join([f"{idx + 1} - {choice.strip()}" for idx, choice in enumerate(literal_eval(x))])
         for x in df["choices"]
@@ -31,13 +29,17 @@ def from_processed(dir: str):
 
 
 class CausalLMDataModule:
-    def __init__(self, data_args, tokenizer, chat_templete, chat_templete_plus, chat_templete_r=None):
+    def __init__(self, data_args, tokenizer, chat_templete, chat_templete_plus, chat_templete_r=None, processed_df=None):
         self.data_args = data_args
         self.tokenizer = tokenizer
         self.chat_templete = chat_templete
         self.chat_templete_plus = chat_templete_plus
         self.chat_templete_r = chat_templete_r
         self.datasets = from_processed(data_args.dataset_name)
+        if processed_df is not None:
+            self.datasets = processed_df
+        else:
+            self.datasets = from_processed(data_args.dataset_name)
 
     def _tokenize(self, instance):
         paragraph = instance["paragraph"]
@@ -75,9 +77,6 @@ class CausalLMDataModule:
         }
 
     def get_processing_data(self, use_kfold=False, k_fold=5, fold_num=0):
-        
-        domain_labels = self.datasets.to_pandas()['domain_binary']
-        
         tokenized_dataset = self.datasets.map(
             self._tokenize,
             remove_columns=list(self.datasets.features),
@@ -91,6 +90,7 @@ class CausalLMDataModule:
         # eval_dataset = tokenized_dataset["test"]
         # return train_dataset, eval_dataset
         if use_kfold:
+            domain_labels = self.datasets.to_pandas()['domain_binary']
             df = tokenized_dataset.to_pandas()
             df['domain_binary'] = domain_labels
             kf = StratifiedKFold(n_splits=k_fold, shuffle=True, random_state=104)

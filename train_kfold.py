@@ -14,6 +14,9 @@ from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from peft import get_peft_model, LoraConfig
 from transformers import HfArgumentParser, AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from huggingface_hub import login
+from datasets import Dataset
+import pandas as pd
+from ast import literal_eval
 
 import mlflow
 import mlflow.transformers
@@ -69,7 +72,7 @@ def main():
     )
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
     #training_args.output_dir = training_args.output_dir + model_args.model_name_or_path
-    training_args.output_dir = training_args.output_dir
+    output_dir = training_args.output_dir
 
     mlflow.set_tracking_uri("http://10.28.224.137:30597/")
 
@@ -82,7 +85,7 @@ def main():
     for fold_num in range(model_args.k_fold):
         logger.info(f"Training fold {fold_num + 1}/{model_args.k_fold}")
         
-        fold_output_dir = os.path.join(training_args.output_dir, f"sfold_{fold_num}")
+        fold_output_dir = os.path.join(output_dir, f"sfold10_{fold_num}")
         training_args.output_dir = fold_output_dir
 
     # 토크나이저 불러오기
@@ -90,6 +93,23 @@ def main():
             model_args.model_name_or_path,
             trust_remote_code=True,
         )
+        
+        df = pd.read_csv(data_args.dataset_name)
+        
+        df["domain_binary"] = df["domain"].apply(lambda x: "국어" if x in ["국어", "KLUE-MRC"] else "사회")        
+        
+        df["choices"] = [
+            "\n".join([f"{idx + 1} - {choice.strip()}" for idx, choice in enumerate(literal_eval(x))])
+            for x in df["choices"]
+        ]
+
+        try:
+            df["retrieve_context"] = df["retrieve_context"].fillna("no")
+        except:
+            df["retrieve_context"] = "no"
+
+        processed_df = Dataset.from_pandas(df)
+        processed_df = Dataset.from_pandas(df)
 
         # 데이터 불러오기 및 전처리
         dm = CausalLMDataModule(
@@ -98,6 +118,7 @@ def main():
             CHAT_TEMPLETE[model_args.model_name_or_path],
             CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
             CHAT_TEMPLETE_R[model_args.model_name_or_path],
+            processed_df=processed_df
         )
         #train_dataset, eval_dataset = dm.get_processing_data()
         
@@ -183,7 +204,7 @@ def main():
         )
 
         # Training
-        with mlflow.start_run(run_name=f"StratifiedKFold_{fold_num}"):  # 실험 안 run name
+        with mlflow.start_run(run_name=f"StratifiedKFold_{fold_num}/10"):  # 실험 안 run name
             mlflow.log_params(lora_config.to_dict())
             train_result = trainer.train()
             trainer.save_model()
