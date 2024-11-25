@@ -96,7 +96,7 @@ def main():
         
         df = pd.read_csv(data_args.dataset_name)
         
-        df["domain_binary"] = df["domain"].apply(lambda x: "국어" if x in ["국어", "KLUE-MRC"] else "사회")        
+        df["domain_binary"] = df["subject"].apply(lambda x: "국어" if x in ["국어", "KLUE-MRC", "공무원_국어"] else "사회")        
         
         df["choices"] = [
             "\n".join([f"{idx + 1} - {choice.strip()}" for idx, choice in enumerate(literal_eval(x))])
