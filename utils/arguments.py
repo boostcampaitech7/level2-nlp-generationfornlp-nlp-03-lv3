@@ -29,11 +29,11 @@ class ModelArguments:
         metadata={"help": "QLoRA(4bit) 사용할지 안할지, 만약 사용한다면 optim 수정, 대신 학습 속도가 느려짐"},
     )
     lora_r: int = field(
-        default=16,
+        default=32,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     lora_alpha: int = field(
-        default=32,
+        default=64,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
 
@@ -46,12 +46,12 @@ class DataTrainingArguments:
 
     # 학습 데이터 불러오기
     train_dataset_name: str = field(
-        default="./resources/fold/fold_0_train.csv",
+        default="./resources/fold/fold_1_train.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 검증 데이터 불러오기
     valid_dataset_name: str = field(
-        default="./resources/fold/fold_0_val.csv",
+        default="./resources/fold/fold_1_val.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 토크나이저 설정
@@ -146,7 +146,7 @@ class OurTrainingArguments(SFTConfig):
         },
     )
     gradient_accumulation_steps: int = field(
-        default=1,
+        default=2,
         metadata={"help": "그래디언트 누적을 위한 스텝 수" "GPU 자원이 부족할 시 배치를 줄이고 누적 수를 늘려 학습"},
     )
     learning_rate: int = field(

@@ -88,7 +88,7 @@ class CausalLMDataModule:
     def get_processing_data(self):
         train_dataset = self.train_datasets.map(
             self._tokenize,
-            remove_columns=list(self.datasets.features),
+            remove_columns=list(self.train_datasets.features),
             batched=True,
             num_proc=4,
             load_from_cache_file=True,
@@ -96,7 +96,7 @@ class CausalLMDataModule:
         )
         eval_dataset = self.valid_datasets.map(
             self._tokenize,
-            remove_columns=list(self.datasets.features),
+            remove_columns=list(self.valid_datasets.features),
             batched=True,
             num_proc=4,
             load_from_cache_file=True,
