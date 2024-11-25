@@ -13,7 +13,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="hungun/Qwen2.5-14B-Instruct-kowiki-qa",
+        default="unsloth/Qwen2.5-32B-Instruct-bnb-4bit",
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
             "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
@@ -29,11 +29,11 @@ class ModelArguments:
         metadata={"help": "QLoRA(4bit) 사용할지 안할지, 만약 사용한다면 optim 수정, 대신 학습 속도가 느려짐"},
     )
     lora_r: int = field(
-        default=6,
+        default=32,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     lora_alpha: int = field(
-        default=8,
+        default=64,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
 
@@ -46,7 +46,12 @@ class DataTrainingArguments:
 
     # 학습 데이터 불러오기
     dataset_name: str = field(
-        default="./resources/merge/curr_sat_dataset.csv",
+        default="./resources/merge/merge_dataset_20241125.csv",
+        metadata={"help": "The name of the dataset to use."},
+    )
+    # 검증 데이터 불러오기
+    dataset_name: str = field(
+        default="./resources/merge/merge_dataset_20241125.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 토크나이저 설정
@@ -77,7 +82,7 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "체크포인트와 모델 출력을 저장할 디렉터리 경로"},
     )
     max_seq_length: int = field(
-        default=2048,
+        default=3000,
         metadata={
             "help": "The maximum total input sequence length after tokenization. Sequences longer "
             "than this will be truncated, sequences shorter will be padded."
@@ -129,7 +134,7 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "가장 좋은 모델 로드"},
     )
     per_device_train_batch_size: int = field(
-        default=1,
+        default=4,
         metadata={"help": "학습 중 장치당 배치 크기" "GPU 메모리에 따라 줄여서 사용 / 너무 큰 배치는 지양"},
     )
     per_device_eval_batch_size: int = field(
@@ -165,7 +170,7 @@ class OurTrainingArguments(SFTConfig):
         default="adamw_8bit",
         metadata={
             "help": "옵티마이저 설정, 다른 옵티마이저 확인을 위해 아래 url에서 OptimizerNames 확인"
-            "Default : adamw_torch / QLoRA 사용시 : paged_adamw_8bit"
+            "Default : adamw_torch / QLoRA 사용시 : paged_adamw_8bit / adamw_8bit"
             "https://github.com/huggingface/transformers/blob/main/src/transformers/training_args.py"
         },
     )

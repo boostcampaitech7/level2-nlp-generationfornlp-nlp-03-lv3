@@ -1,6 +1,7 @@
 # My custom
 lightning_logs/
 mlruns/
+resources/merge/
 database/bm25_model/
 resources/checkpoint/
 resources/outputs_gemma/
@@ -22,6 +23,7 @@ resources/selected_kowikitext/
 *.json
 *.bin
 *.pickle
+*.csv
 
 
 # Byte-compiled / optimized / DLL files

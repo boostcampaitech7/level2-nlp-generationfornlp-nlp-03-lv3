@@ -36,32 +36,39 @@ torch.backends.cudnn.benchmark = False
 
 CHAT_TEMPLETE = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE,
-    "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE,
+    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_CHAT_TEMPLETE,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_CHAT_TEMPLETE,
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE,
+    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE,
+    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE,
+}
+CHAT_TEMPLETE_EXP = {
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE_EXP,
 }
 CHAT_TEMPLETE_PLUS = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE_PLUS,
-    "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE_PLUS,
+    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_CHAT_TEMPLETE_PLUS,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE_PLUS,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_CHAT_TEMPLETE_PLUS,
-}
-CHAT_TEMPLETE_R = {
-    "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": [QWEN_CHAT_TEMPLETE_R, QWEN_CHAT_TEMPLETE_PLUS_R],
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE_PLUS,
+    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE_PLUS,
+    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE_PLUS,
 }
 RESPONSE_TEMP = {
     "beomi/gemma-ko-2b": BASELINE_RESPONSE_TEMP,
-    "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_RESPONSE_TEMP,
+    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_RESPONSE_TEMP,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_RESPONSE_TEMP,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_RESPONSE_TEMP,
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_RESPONSE_TEMP,
+    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_RESPONSE_TEMP,
+    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_RESPONSE_TEMP,
 }
 END_TURN = {
     "beomi/gemma-ko-2b": BASELINE_END_TURN,
-    "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_END_TURN,
+    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_END_TURN,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_END_TURN,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_END_TURN,
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_END_TURN,
+    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_END_TURN,
+    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_END_TURN,
 }
-
 
 def inference_by_logit(model, dataset, raw_dataset, tokenizer):
 
@@ -95,8 +102,8 @@ if __name__ == "__main__":
     # fmt: off
     parser = argparse.ArgumentParser()
     parser.add_argument("--strategy", type=str, default="logit", choices=['logit', 'generation'])
-    parser.add_argument("--model_name_or_path", type=str, default="beomi/Solar-Ko-Recovery-11B")
-    parser.add_argument("--checkpoint", type=str, default="./resources/checkpoint/dev/shm/model/kowikitext-Solar-Ko-Recovery-11B/checkpoint-2792")
+    parser.add_argument("--model_name_or_path", type=str, default="hungun/Qwen2.5-14B-Instruct-kowiki-qa")
+    parser.add_argument("--checkpoint", type=str, default="./resources/checkpoint/hungun/Qwen2.5-14B-Instruct-kowiki-qa/checkpoint-16779")
     parser.add_argument("--dataset_name", type=str, default="./resources/raw/test_reformat.csv")
     parser.add_argument("--truncation", type=bool, default=False)
     parser.add_argument("--padding", type=bool, default=False)

@@ -42,25 +42,29 @@ CHAT_TEMPLETE = {
     "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_CHAT_TEMPLETE,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE,
     "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE,
     "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE,
     "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE,
+}
+CHAT_TEMPLETE_EXP = {
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE_EXP,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE_EXP,
 }
 CHAT_TEMPLETE_PLUS = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE_PLUS,
     "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_CHAT_TEMPLETE_PLUS,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE_PLUS,
     "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE_PLUS,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE_PLUS,
     "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE_PLUS,
     "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE_PLUS,
-}
-CHAT_TEMPLETE_R = {
-    "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": [QWEN_CHAT_TEMPLETE_R, QWEN_CHAT_TEMPLETE_PLUS_R],
 }
 RESPONSE_TEMP = {
     "beomi/gemma-ko-2b": BASELINE_RESPONSE_TEMP,
     "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_RESPONSE_TEMP,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_RESPONSE_TEMP,
     "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_RESPONSE_TEMP,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_RESPONSE_TEMP,
     "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_RESPONSE_TEMP,
     "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_RESPONSE_TEMP,
 }
@@ -69,6 +73,7 @@ END_TURN = {
     "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_END_TURN,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_END_TURN,
     "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_END_TURN,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_END_TURN,
     "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_END_TURN,
     "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_END_TURN,
 }
@@ -90,9 +95,6 @@ def main():
         dtype=None,
         load_in_4bit=model_args.quantization,
     )
-    if model_args.model_name_or_path == "/dev/shm/lcw99/llama-3-10b-wiki-240709-f":
-        model_args.model_name_or_path = "lcw99/llama-3-10b-wiki-240709-f"
-
     logger.info(f">>> {model_args.model_name_or_path}")
 
     # 데이터 불러오기 및 전처리
@@ -101,13 +103,13 @@ def main():
         tokenizer,
         CHAT_TEMPLETE[model_args.model_name_or_path],
         CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
+        CHAT_TEMPLETE_EXP[model_args.model_name_or_path]
     )
 
     train_dataset, eval_dataset = dm.get_processing_data()
 
     logger.info(f"{tokenizer.decode(train_dataset[0]['input_ids'], skip_special_tokens=False)}")
-    logger.info(f"{tokenizer.decode(train_dataset[1]['input_ids'], skip_special_tokens=False)}")
-    logger.info(f"{tokenizer.decode(train_dataset[2]['input_ids'], skip_special_tokens=False)}")
+    logger.info(f"{tokenizer.decode(train_dataset[-1]['input_ids'], skip_special_tokens=False)}")
     train_dataset_token_lengths = [len(train_dataset[i]["input_ids"]) for i in range(len(train_dataset))]
     logger.info(f"max token length: {max(train_dataset_token_lengths)}")
     logger.info(f"min token length: {min(train_dataset_token_lengths)}")
@@ -116,8 +118,8 @@ def main():
     model = FastLanguageModel.get_peft_model(
         model,
         r=model_args.lora_r,  # Choose any number > 0 ! Suggested 8, 16, 32, 64, 128
-        target_modules=["q_proj", "k_proj"],
-        # target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+        # target_modules=["q_proj", "k_proj"],
+        target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
         lora_alpha=model_args.lora_alpha,
         lora_dropout=0,  # Supports any, but = 0 is optimized
         bias="none",  # Supports any, but = "none" is optimized
@@ -159,14 +161,14 @@ def main():
 
     # experiment를 active하고 experiment instance를 반환.
     # 원하는 실험 이름으로 바꾸기.
-    mlflow.set_experiment("sunghoon")
+    mlflow.set_experiment("kfold")
     # MLflow autolog 활성화
     mlflow.transformers.autolog()
 
     # Training
-    with mlflow.start_run(run_name="sunghoon"):  # 실험 안 run name
+    with mlflow.start_run(run_name="fold-1"):  # 실험 안 run name
         mlflow.log_param("lora_r", model_args.lora_r)
-        mlflow.log_param("target_modules", ["q_proj", "k_proj"])
+        mlflow.log_param("target_modules", ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"])
         mlflow.log_param("lora_alpha", model_args.lora_alpha)
         mlflow.log_param("lora_dropout", 0)
         mlflow.log_param("bias", "none")
@@ -202,13 +204,13 @@ def main():
         trainer.log_metrics("eval", metrics)
         trainer.save_metrics("eval", metrics)
 
-        # 모델 레지스트리에 등록
-        mlflow.transformers.log_model(
-            transformers_model={"model": trainer.model, "tokenizer": tokenizer},
-            artifact_path="model",
-            task="text-generation",
-            registered_model_name="sunghoon",  # 원하는 실험 이름으로 바꾸기.
-        )
+        # # 모델 레지스트리에 등록
+        # mlflow.transformers.log_model(
+        #     transformers_model={"model": trainer.model, "tokenizer": tokenizer},
+        #     artifact_path="model",
+        #     task="text-generation",
+        #     registered_model_name="sunghoon",  # 원하는 실험 이름으로 바꾸기.
+        # )
 
 
 if __name__ == "__main__":

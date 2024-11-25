@@ -9,20 +9,19 @@ def from_processed(dir: str):
         "\n".join([f"{idx + 1} - {choice.strip()}" for idx, choice in enumerate(literal_eval(x))])
         for x in df["choices"]
     ]
-    # try:
-    #     df["retrieve_context"] = df["retrieve_context"].fillna("no")
-    # except:
-    #     df["retrieve_context"] = "no"
+    if dir in ['./resources/merge/merge_dataset_20241124.csv', './resources/merge/merge_dataset_20241125.csv']:
+        df["explain"] = df['explain'].fillna("no")
     processed_df = Dataset.from_pandas(df)
     return processed_df
 
 
 class CausalLMDataModule:
-    def __init__(self, data_args, tokenizer, chat_templete, chat_templete_plus):
+    def __init__(self, data_args, tokenizer, chat_templete, chat_templete_plus, chat_templete_exp=None):
         self.data_args = data_args
         self.tokenizer = tokenizer
         self.chat_templete = chat_templete
         self.chat_templete_plus = chat_templete_plus
+        self.chat_templete_exp = chat_templete_exp
         self.datasets = from_processed(data_args.dataset_name)
 
     def _tokenize(self, instance):
@@ -31,14 +30,27 @@ class CausalLMDataModule:
         question_plus = instance["question_plus"]
         choices = instance["choices"]
         answer = instance["answer"]
-
-        # prefix prompt에 formatting
-        prompts = []
-        for p, q, qp, c, a in zip(paragraph, question, question_plus, choices, answer):
-            if qp:
-                prompts.append(self.chat_templete_plus.format(p, q, qp, c, a))
-            else:
-                prompts.append(self.chat_templete.format(p, q, c, a))
+        if self.data_args.dataset_name in ['./resources/merge/merge_dataset_20241124.csv', './resources/merge/merge_dataset_20241125.csv']:
+            explain = instance['explain']
+            # prefix prompt에 formatting
+            prompts = []
+            for p, q, qp, c, e, a in zip(paragraph, question, question_plus, choices, explain, answer):
+                if qp:
+                    prompts.append(self.chat_templete_plus.format(p, q, qp, c, a))
+                else:
+                    if e != "no":
+                        prompts.append(self.chat_templete_exp.format(p, q, c, e, a))
+                    else:
+                        prompts.append(self.chat_templete.format(p, q, c, a))
+                             
+        else:
+            # prefix prompt에 formatting
+            prompts = []
+            for p, q, qp, c, a in zip(paragraph, question, question_plus, choices, answer):
+                if qp:
+                    prompts.append(self.chat_templete_plus.format(p, q, qp, c, a))
+                else:
+                    prompts.append(self.chat_templete.format(p, q, c, a))
 
         # tokenization
         outputs = self.tokenizer(
