@@ -5,10 +5,10 @@ from datasets import Dataset
 
 def from_processed_train_valid(args):
     df_train = pd.read_csv(args.train_dataset_name)
-    df_train["choices"] = [
-        "\n".join([f"{idx + 1} - {choice.strip()}" for idx, choice in enumerate(literal_eval(x))])
-        for x in df_train["choices"]
-    ]
+    # df_train["choices"] = [
+    #     "\n".join([f"{idx + 1} - {choice.strip()}" for idx, choice in enumerate(literal_eval(x))])
+    #     for x in df_train["choices"]
+    # ]
     try:
         df_train["explain"] = df_train['explain'].fillna("no")
     except:
@@ -16,10 +16,10 @@ def from_processed_train_valid(args):
     processed_df_train = Dataset.from_pandas(df_train)
     
     df_valid = pd.read_csv(args.valid_dataset_name)
-    df_valid["choices"] = [
-        "\n".join([f"{idx + 1} - {choice.strip()}" for idx, choice in enumerate(literal_eval(x))])
-        for x in df_train["choices"]
-    ]
+    # df_valid["choices"] = [
+    #     "\n".join([f"{idx + 1} - {choice.strip()}" for idx, choice in enumerate(literal_eval(x))])
+    #     for x in df_train["choices"]
+    # ]
     try:
         df_valid["explain"] = df_valid['explain'].fillna("no")
     except:
@@ -72,7 +72,6 @@ class CausalLMDataModule:
                 else:
                     prompts.append(self.chat_templete.format(p, q, c, a))
                              
-
         # tokenization
         outputs = self.tokenizer(
             prompts,
