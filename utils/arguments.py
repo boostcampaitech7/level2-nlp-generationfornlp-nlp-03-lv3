@@ -45,13 +45,13 @@ class DataTrainingArguments:
     """
 
     # 학습 데이터 불러오기
-    dataset_name: str = field(
-        default="./resources/merge/merge_dataset_20241125.csv",
+    train_dataset_name: str = field(
+        default="./resources/fold/fold_0_train.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 검증 데이터 불러오기
-    dataset_name: str = field(
-        default="./resources/merge/merge_dataset_20241125.csv",
+    valid_dataset_name: str = field(
+        default="./resources/fold/fold_0_val.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 토크나이저 설정

@@ -3,6 +3,31 @@ from ast import literal_eval
 from datasets import Dataset
 
 
+def from_processed_train_valid(args):
+    df_train = pd.read_csv(args.train_dataset_name)
+    df_train["choices"] = [
+        "\n".join([f"{idx + 1} - {choice.strip()}" for idx, choice in enumerate(literal_eval(x))])
+        for x in df_train["choices"]
+    ]
+    try:
+        df_train["explain"] = df_train['explain'].fillna("no")
+    except:
+         df_train["explain"] = "no"
+    processed_df_train = Dataset.from_pandas(df_train)
+    
+    df_valid = pd.read_csv(args.valid_dataset_name)
+    df_valid["choices"] = [
+        "\n".join([f"{idx + 1} - {choice.strip()}" for idx, choice in enumerate(literal_eval(x))])
+        for x in df_train["choices"]
+    ]
+    try:
+        df_valid["explain"] = df_valid['explain'].fillna("no")
+    except:
+         df_valid["explain"] = "no"
+    processed_df_valid = Dataset.from_pandas(df_valid)
+    return processed_df_train, processed_df_valid
+
+
 def from_processed(dir: str):
     df = pd.read_csv(dir)
     df["choices"] = [
@@ -18,13 +43,16 @@ def from_processed(dir: str):
 
 
 class CausalLMDataModule:
-    def __init__(self, data_args, tokenizer, chat_templete, chat_templete_plus, chat_templete_exp=None):
+    def __init__(self, data_args, tokenizer, chat_templete, chat_templete_plus, chat_templete_exp=None, mode='train'):
         self.data_args = data_args
         self.tokenizer = tokenizer
         self.chat_templete = chat_templete
         self.chat_templete_plus = chat_templete_plus
         self.chat_templete_exp = chat_templete_exp
-        self.datasets = from_processed(data_args.dataset_name)
+        if mode == 'train':
+            self.train_datasets, self.valid_datasets = from_processed_train_valid(self.data_args)
+        else:
+            self.datasets = from_processed(self.data_args.dataset_name)
 
     def _tokenize(self, instance):
         paragraph = instance["paragraph"]
@@ -59,7 +87,7 @@ class CausalLMDataModule:
         }
 
     def get_processing_data(self):
-        tokenized_dataset = self.datasets.map(
+        train_dataset = self.train_datasets.map(
             self._tokenize,
             remove_columns=list(self.datasets.features),
             batched=True,
@@ -67,9 +95,15 @@ class CausalLMDataModule:
             load_from_cache_file=True,
             desc="Tokenizing",
         )
-        tokenized_dataset = tokenized_dataset.train_test_split(test_size=0.1, seed=104)
-        train_dataset = tokenized_dataset["train"]
-        eval_dataset = tokenized_dataset["test"]
+        eval_dataset = self.valid_datasets.map(
+            self._tokenize,
+            remove_columns=list(self.datasets.features),
+            batched=True,
+            num_proc=4,
+            load_from_cache_file=True,
+            desc="Tokenizing",
+        )
+
         return train_dataset, eval_dataset
 
     def _tokenize_inference(self, instance):

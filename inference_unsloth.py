@@ -119,7 +119,7 @@ if __name__ == "__main__":
         tokenizer,
         CHAT_TEMPLETE[args.model_name_or_path],
         CHAT_TEMPLETE_PLUS[args.model_name_or_path],
-        # CHAT_TEMPLETE_R[args.model_name_or_path] if args.model_name_or_path != "beomi/Solar-Ko-Recovery-11B" else None,
+        mode='inference'
     )
     raw_dataset, inference_dataset = dm.get_inference_data(RESPONSE_TEMP[args.model_name_or_path])
     logger.info(f"{tokenizer.decode(inference_dataset[0]['input_ids'], skip_special_tokens=False)}")
