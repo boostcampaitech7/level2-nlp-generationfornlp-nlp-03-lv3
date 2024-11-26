@@ -12,7 +12,7 @@ from utils.arguments import ModelArguments, DataTrainingArguments, OurTrainingAr
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
-from transformers import HfArgumentParser, LlamaConfig
+from transformers import HfArgumentParser
 from huggingface_hub import login
 import mlflow
 import mlflow.transformers
@@ -39,38 +39,43 @@ torch.backends.cudnn.benchmark = False
 
 CHAT_TEMPLETE = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE,
-    "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE,
+    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_CHAT_TEMPLETE,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE,
-    "Qwen/Qwen2.5-14B-Instruct": QWEN_CHAT_TEMPLETE,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_CHAT_TEMPLETE,
-    "beomi/KoAlpaca-RealQA-Solar-Ko-Recovery-11B-Merged": KoAlpaca_CHAT_TEMPLETE,
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE,
+    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE,
+    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE,
+}
+CHAT_TEMPLETE_EXP = {
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE_EXP,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE_EXP,
 }
 CHAT_TEMPLETE_PLUS = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE_PLUS,
-    "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE_PLUS,
+    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_CHAT_TEMPLETE_PLUS,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE_PLUS,
-    "Qwen/Qwen2.5-14B-Instruct": QWEN_CHAT_TEMPLETE_PLUS,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_CHAT_TEMPLETE_PLUS,
-    "beomi/KoAlpaca-RealQA-Solar-Ko-Recovery-11B-Merged": KoAlpaca_CHAT_TEMPLETE_PLUS,
-}
-CHAT_TEMPLETE_R = {
-    "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": [QWEN_CHAT_TEMPLETE_R, QWEN_CHAT_TEMPLETE_PLUS_R],
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE_PLUS,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE_PLUS,
+    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE_PLUS,
+    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE_PLUS,
 }
 RESPONSE_TEMP = {
     "beomi/gemma-ko-2b": BASELINE_RESPONSE_TEMP,
-    "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_RESPONSE_TEMP,
+    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_RESPONSE_TEMP,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_RESPONSE_TEMP,
-    "Qwen/Qwen2.5-14B-Instruct": QWEN_RESPONSE_TEMP,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_RESPONSE_TEMP,
-    "beomi/KoAlpaca-RealQA-Solar-Ko-Recovery-11B-Merged": KoAlpaca_RESPONSE_TEMP,
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_RESPONSE_TEMP,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_RESPONSE_TEMP,
+    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_RESPONSE_TEMP,
+    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_RESPONSE_TEMP,
 }
 END_TURN = {
     "beomi/gemma-ko-2b": BASELINE_END_TURN,
-    "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_END_TURN,
+    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_END_TURN,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_END_TURN,
-    "Qwen/Qwen2.5-14B-Instructt": QWEN_END_TURN,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_END_TURN,
-    "beomi/KoAlpaca-RealQA-Solar-Ko-Recovery-11B-Merged": KoAlpaca_END_TURN,
+    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_END_TURN,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_END_TURN,
+    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_END_TURN,
+    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_END_TURN,
 }
 
 
@@ -83,9 +88,6 @@ def main():
     training_args.fp16 = not is_bfloat16_supported()
     training_args.bf16 = is_bfloat16_supported()
 
-    config = LlamaConfig.from_pretrained(model_args.model_name_or_path)
-    config.rope_scaling_type = None
-
     # 모델 및 토크나이저 불러오기
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=model_args.model_name_or_path,
@@ -93,12 +95,7 @@ def main():
         dtype=None,
         load_in_4bit=model_args.quantization,
     )
-    if model_args.model_name_or_path == "beomi/Solar-Ko-Recovery-11B":
-        token_list = ["<|im_start|>"]
-        special_tokens_dict = {"additional_special_tokens": token_list}
-        tokenizer.add_special_tokens(special_tokens_dict)
-        model.resize_token_embeddings(len(tokenizer))
-        logger.info(f"{special_tokens_dict}")
+    logger.info(f">>> {model_args.model_name_or_path}")
 
     # 데이터 불러오기 및 전처리
     dm = CausalLMDataModule(
@@ -106,13 +103,13 @@ def main():
         tokenizer,
         CHAT_TEMPLETE[model_args.model_name_or_path],
         CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
+        CHAT_TEMPLETE_EXP[model_args.model_name_or_path]
     )
 
     train_dataset, eval_dataset = dm.get_processing_data()
 
     logger.info(f"{tokenizer.decode(train_dataset[0]['input_ids'], skip_special_tokens=False)}")
-    logger.info(f"{tokenizer.decode(train_dataset[1]['input_ids'], skip_special_tokens=False)}")
-    logger.info(f"{tokenizer.decode(train_dataset[2]['input_ids'], skip_special_tokens=False)}")
+    logger.info(f"{tokenizer.decode(train_dataset[-1]['input_ids'], skip_special_tokens=False)}")
     train_dataset_token_lengths = [len(train_dataset[i]["input_ids"]) for i in range(len(train_dataset))]
     logger.info(f"max token length: {max(train_dataset_token_lengths)}")
     logger.info(f"min token length: {min(train_dataset_token_lengths)}")
@@ -121,9 +118,8 @@ def main():
     model = FastLanguageModel.get_peft_model(
         model,
         r=model_args.lora_r,  # Choose any number > 0 ! Suggested 8, 16, 32, 64, 128
-        target_modules=["q_proj", "k_proj"],
-        # target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
-        # target_modules=["attention.query_key_value"],
+        # target_modules=["q_proj", "k_proj"],
+        target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
         lora_alpha=model_args.lora_alpha,
         lora_dropout=0,  # Supports any, but = 0 is optimized
         bias="none",  # Supports any, but = "none" is optimized
@@ -165,15 +161,14 @@ def main():
 
     # experiment를 active하고 experiment instance를 반환.
     # 원하는 실험 이름으로 바꾸기.
-    mlflow.set_experiment("Qwen_Instruct")
+    mlflow.set_experiment("Lucia")
     # MLflow autolog 활성화
     mlflow.transformers.autolog()
 
     # Training
-    with mlflow.start_run(run_name="FP16"):  # 실험 안 run name
+    with mlflow.start_run(run_name="no_explain"):  # 실험 안 run name
         mlflow.log_param("lora_r", model_args.lora_r)
-        mlflow.log_param("target_modules", ["q_proj", "k_proj"])
-        # mlflow.log_param("target_modules", ["attention.query_key_value"])
+        mlflow.log_param("target_modules", ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"])
         mlflow.log_param("lora_alpha", model_args.lora_alpha)
         mlflow.log_param("lora_dropout", 0)
         mlflow.log_param("bias", "none")
@@ -209,14 +204,23 @@ def main():
         trainer.log_metrics("eval", metrics)
         trainer.save_metrics("eval", metrics)
 
-        # 모델 레지스트리에 등록
-        mlflow.transformers.log_model(
-            transformers_model={"model": trainer.model, "tokenizer": tokenizer},
-            artifact_path="model",
-            task="text-generation",
-            registered_model_name="FP16",  # 원하는 실험 이름으로 바꾸기.
-        )
+        # # 모델 레지스트리에 등록
+        # mlflow.transformers.log_model(
+        #     transformers_model={"model": trainer.model, "tokenizer": tokenizer},
+        #     artifact_path="model",
+        #     task="text-generation",
+        #     registered_model_name="sunghoon",  # 원하는 실험 이름으로 바꾸기.
+        # )
 
 
 if __name__ == "__main__":
     main()
+
+"""
+if model_args.model_name_or_path == "beomi/Solar-Ko-Recovery-11B":
+    token_list = ["<|im_start|>", "<|im_end|>"]
+    special_tokens_dict = {"additional_special_tokens": token_list}
+    tokenizer.add_special_tokens(special_tokens_dict)
+    model.resize_token_embeddings(len(tokenizer))
+    logger.info(f"{special_tokens_dict}")
+"""
