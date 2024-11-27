@@ -190,14 +190,14 @@ def main():
     # Training state 저장
     trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))
 
-        # Evaluation
-        logger.info("***** Evaluate *****")
-        metrics = trainer.evaluate()
+    # # Evaluation
+    # logger.info("***** Evaluate *****")
+    # metrics = trainer.evaluate()
 
-        metrics["eval_samples"] = len(eval_dataset)
+    # metrics["eval_samples"] = len(eval_dataset)
 
-        trainer.log_metrics("eval", metrics)
-        trainer.save_metrics("eval", metrics)
+    # trainer.log_metrics("eval", metrics)
+    # trainer.save_metrics("eval", metrics)
 
         # # 모델 레지스트리에 등록
         # mlflow.transformers.log_model(
