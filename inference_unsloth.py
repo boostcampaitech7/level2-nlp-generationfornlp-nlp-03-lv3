@@ -61,7 +61,6 @@ END_TURN = {
     "EEVE-Korean-Instruct-10.8B-v1.0": SOLAR_END_TURN,
 }
 
-
 def inference_by_logit(model, dataset, raw_dataset, tokenizer):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -104,6 +103,7 @@ if __name__ == "__main__":
 
     model, tokenizer = FastLanguageModel.from_pretrained(args.checkpoint, dtype=None)
     FastLanguageModel.for_inference(model)  # Enable native 2x faster inference
+
     # 데이터 불러오기 및 전처리
     dm = CausalLMDataModule(
         args,

@@ -19,6 +19,10 @@ class ModelArguments:
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
             "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
             "beomi/Solar-Ko-Recovery-11B"
+            "hungun/Qwen2.5-14B-Instruct-kowiki-qa"
+            "ludobico/gemma2_9b_it_1ep_kowiki"
+            "MLP-KTLim/llama-3-Korean-Bllossom-8B"
+            "lcw99/llama-3-10b-wiki-240709-f"
         },
     )
     quantization: bool = field(
@@ -112,7 +116,7 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "가장 좋은 모델 로드"},
     )
     per_device_train_batch_size: int = field(
-        default=8,
+        default=4,
         metadata={"help": "학습 중 장치당 배치 크기" "GPU 메모리에 따라 줄여서 사용 / 너무 큰 배치는 지양"},
     )
     per_device_eval_batch_size: int = field(
@@ -124,7 +128,7 @@ class OurTrainingArguments(SFTConfig):
         },
     )
     gradient_accumulation_steps: int = field(
-        default=1,
+        default=2,
         metadata={"help": "그래디언트 누적을 위한 스텝 수" "GPU 자원이 부족할 시 배치를 줄이고 누적 수를 늘려 학습"},
     )
     learning_rate: int = field(
@@ -145,10 +149,10 @@ class OurTrainingArguments(SFTConfig):
     )
     # Optimizer 설정
     optim: str = field(
-        default="paged_adamw_8bit",
+        default="adamw_8bit",
         metadata={
             "help": "옵티마이저 설정, 다른 옵티마이저 확인을 위해 아래 url에서 OptimizerNames 확인"
-            "Default : adamw_torch / QLoRA 사용시 : paged_adamw_8bit"
+            "Default : adamw_torch / QLoRA 사용시 : paged_adamw_8bit / adamw_8bit"
             "https://github.com/huggingface/transformers/blob/main/src/transformers/training_args.py"
         },
     )

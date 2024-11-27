@@ -94,13 +94,13 @@ def main():
         tokenizer,
         CHAT_TEMPLETE[model_args.model_name_or_path],
         CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
+        CHAT_TEMPLETE_EXP[model_args.model_name_or_path]
     )
 
     train_dataset = dm.get_processing_data() #flag
 
     logger.info(f"{tokenizer.decode(train_dataset[0]['input_ids'], skip_special_tokens=False)}")
-    logger.info(f"{tokenizer.decode(train_dataset[1]['input_ids'], skip_special_tokens=False)}")
-    logger.info(f"{tokenizer.decode(train_dataset[2]['input_ids'], skip_special_tokens=False)}")
+    logger.info(f"{tokenizer.decode(train_dataset[-1]['input_ids'], skip_special_tokens=False)}")
     train_dataset_token_lengths = [len(train_dataset[i]["input_ids"]) for i in range(len(train_dataset))]
     logger.info(f"max token length: {max(train_dataset_token_lengths)}")
     logger.info(f"min token length: {min(train_dataset_token_lengths)}")
@@ -147,6 +147,27 @@ def main():
         preprocess_logits_for_metrics=cm.preprocess_logits_for_metrics,
         args=training_args,
     )
+
+    mlflow.set_tracking_uri("http://10.28.224.137:30597/")
+
+    # experiment를 active하고 experiment instance를 반환.
+    # 원하는 실험 이름으로 바꾸기.
+    mlflow.set_experiment("kfold")
+    # MLflow autolog 활성화
+    mlflow.transformers.autolog()
+
+    # Training
+    with mlflow.start_run(run_name="fold-1"):  # 실험 안 run name
+        mlflow.log_param("lora_r", model_args.lora_r)
+        mlflow.log_param("target_modules", ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"])
+        mlflow.log_param("lora_alpha", model_args.lora_alpha)
+        mlflow.log_param("lora_dropout", 0)
+        mlflow.log_param("bias", "none")
+        mlflow.log_param("lora_alpha", model_args.lora_alpha)
+        mlflow.log_param("random_state", 104)
+
+        train_result = trainer.train()
+        trainer.save_model()
     
      
     train_result = trainer.train()
@@ -169,12 +190,32 @@ def main():
     # Training state 저장
     trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))
 
+        # Evaluation
+        logger.info("***** Evaluate *****")
+        metrics = trainer.evaluate()
 
-# 바꿀 것
-# 모델 이름
-# 데이터셋 이름
-# 실험, run, registry 이름
-# 프롬프트 딕셔너리 이름 추가
+        metrics["eval_samples"] = len(eval_dataset)
+
+        trainer.log_metrics("eval", metrics)
+        trainer.save_metrics("eval", metrics)
+
+        # # 모델 레지스트리에 등록
+        # mlflow.transformers.log_model(
+        #     transformers_model={"model": trainer.model, "tokenizer": tokenizer},
+        #     artifact_path="model",
+        #     task="text-generation",
+        #     registered_model_name="sunghoon",  # 원하는 실험 이름으로 바꾸기.
+        # )
+
 
 if __name__ == "__main__":
     main()
+
+"""
+if model_args.model_name_or_path == "beomi/Solar-Ko-Recovery-11B":
+    token_list = ["<|im_start|>", "<|im_end|>"]
+    special_tokens_dict = {"additional_special_tokens": token_list}
+    tokenizer.add_special_tokens(special_tokens_dict)
+    model.resize_token_embeddings(len(tokenizer))
+    logger.info(f"{special_tokens_dict}")
+"""

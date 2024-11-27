@@ -49,33 +49,37 @@ CHAT_TEMPLETE = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_CHAT_TEMPLETE,
-    "unsloth/gemma-2-27b-bnb-4bit":BASELINE_CHAT_TEMPLETE,
+    "Qwen/Qwen2.5-14B-Instruct": QWEN_CHAT_TEMPLETE,
+    "beomi/KoAlpaca-RealQA-Solar-Ko-Recovery-11B-Merged": KoAlpaca_CHAT_TEMPLETE,
 }
 CHAT_TEMPLETE_PLUS = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE_PLUS,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE_PLUS,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE_PLUS,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_CHAT_TEMPLETE_PLUS,
-    "unsloth/gemma-2-27b-bnb-4bit":BASELINE_CHAT_TEMPLETE_PLUS
+    "Qwen/Qwen2.5-14B-Instruct": QWEN_CHAT_TEMPLETE_PLUS,
+    "beomi/KoAlpaca-RealQA-Solar-Ko-Recovery-11B-Merged": KoAlpaca_CHAT_TEMPLETE_PLUS,
+}
+CHAT_TEMPLETE_R = {
+    "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": [QWEN_CHAT_TEMPLETE_R, QWEN_CHAT_TEMPLETE_PLUS_R],
 }
 RESPONSE_TEMP = {
     "beomi/gemma-ko-2b": BASELINE_RESPONSE_TEMP,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_RESPONSE_TEMP,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_RESPONSE_TEMP,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_RESPONSE_TEMP,
-    "unsloth/gemma-2-27b-bnb-4bit" : BASELINE_RESPONSE_TEMP
+    "Qwen/Qwen2.5-14B-Instruct": QWEN_RESPONSE_TEMP,
+    "beomi/KoAlpaca-RealQA-Solar-Ko-Recovery-11B-Merged": KoAlpaca_RESPONSE_TEMP,
 }
 END_TURN = {
     "beomi/gemma-ko-2b": BASELINE_END_TURN,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_END_TURN,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_END_TURN,
-    "beomi/Solar-Ko-Recovery-11B": SOLAR_END_TURN,
-    "unsloth/gemma-2-27b-bnb-4bit" : BASELINE_END_TURN
+    "Qwen/Qwen2.5-14B-Instruct": QWEN_END_TURN,
+    "beomi/KoAlpaca-RealQA-Solar-Ko-Recovery-11B-Merged": KoAlpaca_END_TURN,
 }
 
 
 def main():
+    torch.cuda.empty_cache()
     parser = HfArgumentParser(
         (ModelArguments, DataTrainingArguments, OurTrainingArguments)  # arguement 쭉 읽어보면서 이해하기
     )
@@ -172,7 +176,7 @@ def main():
 
     # experiment를 active하고 experiment instance를 반환.
     # 원하는 실험 이름으로 바꾸기.
-    # mlflow.set_experiment("Exp_name")
+    mlflow.set_experiment("lucia")
     # MLflow autolog 활성화
     # mlflow.transformers.autolog()
 
@@ -204,10 +208,10 @@ def main():
     # 추가 학습 가능 확인
     
     # Training
-    # with mlflow.start_run(run_name="whateveryouwant"):  # 실험 안 run name
-        # mlflow.log_params(lora_config.to_dict())
-    train_result = trainer.train()
-    trainer.save_model()
+    with mlflow.start_run(run_name="lucia_data"):  # 실험 안 run name
+        mlflow.log_params(lora_config.to_dict())
+        train_result = trainer.train()
+        trainer.save_model()
 
     metrics = train_result.metrics
     metrics["train_samples"] = len(train_dataset)
@@ -236,12 +240,12 @@ def main():
     trainer.save_metrics("eval", metrics)
 
         # 모델 레지스트리에 등록
-        # mlflow.transformers.log_model(
-        #     transformers_model={"model": trainer.model, "tokenizer": tokenizer},
-        #     artifact_path="model",
-        #     task="text-generation",
-        #     registered_model_name="Gen_NLP_exp",  # 원하는 실험 이름으로 바꾸기.
-        # )
+        mlflow.transformers.log_model(
+            transformers_model={"model": trainer.model, "tokenizer": tokenizer},
+            artifact_path="model",
+            task="text-generation",
+            registered_model_name="lucia_data",  # 원하는 실험 이름으로 바꾸기.
+        )
 
 
 if __name__ == "__main__":
