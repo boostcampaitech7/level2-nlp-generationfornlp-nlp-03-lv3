@@ -7,6 +7,11 @@ resources/outputs_gemma/
 resources/wikidump/
 resources/kowikitext/
 resources/selected_kowikitext/
+curri/
+accumulation/
+data_aug/
+eng_toefl/
+model_test/
 .idea/
 .DS_Store
 *.pdf
@@ -21,7 +26,7 @@ resources/selected_kowikitext/
 *.json
 *.bin
 *.pickle
-
+*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

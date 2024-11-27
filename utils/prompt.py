@@ -152,7 +152,7 @@ QWEN_CHAT_TEMPLETE_PLUS_R = """<|im_start|>system
 {}<|im_end|>"""
 
 
-SOLAR_CHAT_TEMPLETE = """지문을 읽고 질문에 대해 단계별로 추로한며 답을 구하세요.<|im_start|>user
+SOLAR_CHAT_TEMPLETE = """지문을 읽고 질문에 대해 단계별로 추론하며 답을 구하세요.<|im_start|>user
 지문: 
 {}
 
@@ -168,7 +168,7 @@ SOLAR_CHAT_TEMPLETE = """지문을 읽고 질문에 대해 단계별로 추로�
 {}</s>"""
 SOLAR_RESPONSE_TEMP = "<|im_start|>assistant"
 SOLAR_END_TURN = "</s>"
-SOLAR_CHAT_TEMPLETE_PLUS = """지문을 읽고 질문에 대해 단계별로 추로한며 답을 구하세요.<|im_start|>user
+SOLAR_CHAT_TEMPLETE_PLUS = """지문을 읽고 질문에 대해 단계별로 추론하며 답을 구하세요.<|im_start|>user
 지문: 
 {}
 
@@ -185,3 +185,69 @@ SOLAR_CHAT_TEMPLETE_PLUS = """지문을 읽고 질문에 대해 단계별로 추
 정답:</s>
 <|im_start|>assistant
 {}</s>"""
+SOLAR_CHAT_TEMPLETE_R = """<|im_start|>system 
+지문을 읽고 질문의 답을 구하세요.<|im_end|>
+<|im_start|>user
+지문: 
+{}
+
+힌트: 
+{}
+
+질문: 
+{}
+
+<보기>: 
+{}
+
+선택지: 
+{}
+
+1, 2, 3, 4, 5 중에 하나를 정답으로 고르세요.
+정답:<|im_end|>
+<|im_start|>assistant
+{}<|im_end|>"""
+SOLAR_CHAT_TEMPLETE_PLUS_R="""<|im_start|>system 
+지문을 읽고 질문의 답을 구하세요.<|im_end|>
+<|im_start|>user
+지문: 
+{}
+
+힌트: 
+{}
+
+질문: 
+{}
+
+<보기>: 
+{}
+
+선택지: 
+{}
+
+1, 2, 3, 4, 5 중에 하나를 정답으로 고르세요.
+정답:<|im_end|>
+<|im_start|>assistant
+{}<|im_end|>"""
+
+
+QWEN_CHAT_TEMPLETE_EN="""<|im_start|>system 
+read paragraph and answer the question.<|im_end|>
+<|im_start|>user
+pargraph: 
+{}
+
+question: 
+{}
+
+choices: 
+{}
+
+choose one among 1, 2, 3, 4, 5.
+answer:<|im_end|>
+<|im_start|>assistant
+{}<|im_end|>"""
+QWEN_CHAT_TEMPLETE_PLUS_EN=""
+
+QWEN_RESPONSE_TEMP_EN="<|im_start|>assistant"
+QWEN_END_TURN_EN="<|im_end|>"

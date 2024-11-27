@@ -1,6 +1,8 @@
 # fmt: off
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import torch
+import torch.nn as nn
 import random
 import numpy as np
 import logging
@@ -11,12 +13,17 @@ from utils.helpers import find_linear_names
 from utils.dataloader import CausalLMDataModule
 from utils.arguments import ModelArguments, DataTrainingArguments, OurTrainingArguments
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
-from peft import get_peft_model, LoraConfig
+from peft import get_peft_model, LoraConfig , AutoPeftModelForCausalLM
 from transformers import HfArgumentParser, AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from huggingface_hub import login
 
-import mlflow
-import mlflow.transformers
+
+
+
+
+print(torch.cuda.device_count())
+# import mlflow
+# import mlflow.transformers
 
 # fmt: on
 hf_token = "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"
@@ -42,24 +49,29 @@ CHAT_TEMPLETE = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE,
+    "beomi/Solar-Ko-Recovery-11B": SOLAR_CHAT_TEMPLETE,
+    "unsloth/gemma-2-27b-bnb-4bit":BASELINE_CHAT_TEMPLETE,
 }
 CHAT_TEMPLETE_PLUS = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE_PLUS,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_CHAT_TEMPLETE_PLUS,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE_PLUS,
-}
-CHAT_TEMPLETE_R = {
-    "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": [QWEN_CHAT_TEMPLETE_R, QWEN_CHAT_TEMPLETE_PLUS_R],
+    "beomi/Solar-Ko-Recovery-11B": SOLAR_CHAT_TEMPLETE_PLUS,
+    "unsloth/gemma-2-27b-bnb-4bit":BASELINE_CHAT_TEMPLETE_PLUS
 }
 RESPONSE_TEMP = {
     "beomi/gemma-ko-2b": BASELINE_RESPONSE_TEMP,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_RESPONSE_TEMP,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_RESPONSE_TEMP,
+    "beomi/Solar-Ko-Recovery-11B": SOLAR_RESPONSE_TEMP,
+    "unsloth/gemma-2-27b-bnb-4bit" : BASELINE_RESPONSE_TEMP
 }
 END_TURN = {
     "beomi/gemma-ko-2b": BASELINE_END_TURN,
     "LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct": EXAONE_END_TURN,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_END_TURN,
+    "beomi/Solar-Ko-Recovery-11B": SOLAR_END_TURN,
+    "unsloth/gemma-2-27b-bnb-4bit" : BASELINE_END_TURN
 }
 
 
@@ -82,7 +94,6 @@ def main():
         tokenizer,
         CHAT_TEMPLETE[model_args.model_name_or_path],
         CHAT_TEMPLETE_PLUS[model_args.model_name_or_path],
-        CHAT_TEMPLETE_R[model_args.model_name_or_path],
     )
     train_dataset, eval_dataset = dm.get_processing_data()
 
@@ -130,10 +141,17 @@ def main():
         task_type="CAUSAL_LM",
         modules_to_save=None,
     )
-
     # 모델 불러오기
     model = get_peft_model(model, lora_config)
     model.print_trainable_parameters()
+
+    if model_args.model_name_or_path == "upstage/solar-pro-preview-instruct":
+        token_list = ["<|im_start|>"]
+        special_tokens_dict = {"additional_special_tokens": token_list}
+        tokenizer.add_special_tokens(special_tokens_dict)
+        model.resize_token_embeddings(len(tokenizer))
+        logger.info(f"{special_tokens_dict}")
+
 
     # Data collactor 설정
     data_collator = DataCollatorForCompletionOnlyLM(
@@ -150,13 +168,25 @@ def main():
     tokenizer.padding_side = "right"
     logger.info(f"토크나이저 스페셜 토큰 : {tokenizer.special_tokens_map}")
 
-    mlflow.set_tracking_uri("http://10.28.224.137:30597/")
+    # mlflow.set_tracking_uri("http://10.28.224.137:30597/")
 
     # experiment를 active하고 experiment instance를 반환.
     # 원하는 실험 이름으로 바꾸기.
-    mlflow.set_experiment("Exp_name")
+    # mlflow.set_experiment("Exp_name")
     # MLflow autolog 활성화
-    mlflow.transformers.autolog()
+    # mlflow.transformers.autolog()
+
+    # 학습한 LoRA 어댑터 로드 curriculum
+    # adapter_path = "curri/checkpoint/middlebeomi/Qwen2.5-7B-Instruct-kowiki-qa-context/checkpoint-2172"
+    # if os.path.exists(adapter_path):
+    #     model = AutoPeftModelForCausalLM.from_pretrained(
+    #         pretrained_model_name_or_path=adapter_path,
+    #         is_trainable=True,  # 추가 학습을 위해 True 설정
+    #         torch_dtype=torch.float16,
+    #     )
+    #     model.print_trainable_parameters()
+
+
 
     trainer = SFTTrainer(
         model=model,
@@ -167,47 +197,51 @@ def main():
         compute_metrics=cm.compute_metrics,
         preprocess_logits_for_metrics=cm.preprocess_logits_for_metrics,
         args=training_args,
+
     )
 
+
+    # 추가 학습 가능 확인
+    
     # Training
-    with mlflow.start_run(run_name="whateveryouwant"):  # 실험 안 run name
-        mlflow.log_params(lora_config.to_dict())
-        train_result = trainer.train()
-        trainer.save_model()
+    # with mlflow.start_run(run_name="whateveryouwant"):  # 실험 안 run name
+        # mlflow.log_params(lora_config.to_dict())
+    train_result = trainer.train()
+    trainer.save_model()
 
-        metrics = train_result.metrics
-        metrics["train_samples"] = len(train_dataset)
+    metrics = train_result.metrics
+    metrics["train_samples"] = len(train_dataset)
 
-        trainer.log_metrics("train", metrics)
-        trainer.save_metrics("train", metrics)
-        trainer.save_state()
+    trainer.log_metrics("train", metrics)
+    trainer.save_metrics("train", metrics)
+    trainer.save_state()
 
-        output_train_file = os.path.join(training_args.output_dir, "train_results.txt")
-        with open(output_train_file, "w") as writer:
-            logger.info("***** Train results *****")
-            for key, value in sorted(train_result.metrics.items()):
-                logger.info(f"  {key} = {value}")
-                writer.write(f"{key} = {value}\n")
+    output_train_file = os.path.join(training_args.output_dir, "train_results.txt")
+    with open(output_train_file, "w") as writer:
+        logger.info("***** Train results *****")
+        for key, value in sorted(train_result.metrics.items()):
+            logger.info(f"  {key} = {value}")
+            writer.write(f"{key} = {value}\n")
 
-        # Training state 저장
-        trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))
+    # Training state 저장
+    trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))
 
-        # Evaluation
-        logger.info("***** Evaluate *****")
-        metrics = trainer.evaluate()
+    # Evaluation
+    logger.info("***** Evaluate *****")
+    metrics = trainer.evaluate()
 
-        metrics["eval_samples"] = len(eval_dataset)
+    metrics["eval_samples"] = len(eval_dataset)
 
-        trainer.log_metrics("eval", metrics)
-        trainer.save_metrics("eval", metrics)
+    trainer.log_metrics("eval", metrics)
+    trainer.save_metrics("eval", metrics)
 
         # 모델 레지스트리에 등록
-        mlflow.transformers.log_model(
-            transformers_model={"model": trainer.model, "tokenizer": tokenizer},
-            artifact_path="model",
-            task="text-generation",
-            registered_model_name="Gen_NLP_exp",  # 원하는 실험 이름으로 바꾸기.
-        )
+        # mlflow.transformers.log_model(
+        #     transformers_model={"model": trainer.model, "tokenizer": tokenizer},
+        #     artifact_path="model",
+        #     task="text-generation",
+        #     registered_model_name="Gen_NLP_exp",  # 원하는 실험 이름으로 바꾸기.
+        # )
 
 
 if __name__ == "__main__":
