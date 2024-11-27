@@ -87,6 +87,26 @@ QWEN_CHAT_TEMPLETE_PLUS = """<|im_start|>system
 정답:<|im_end|>
 <|im_start|>assistant
 {}<|im_end|>"""
+QWEN_CHAT_TEMPLETE_PLUS_EXP = """<|im_start|>system 
+지문을 읽고 단계별로 생각하며 정답을 고르세요.<|im_end|>
+<|im_start|>user
+지문: 
+{}
+
+질문:
+{}
+
+<보기>: 
+{}
+
+선택지: 
+{}
+
+1, 2, 3, 4, 5 중에 하나를 정답으로 고르세요.
+정답:
+{}<|im_end|>
+<|im_start|>assistant
+{}<|im_end|>"""
 # ----------------------------------------------------------------------------------------
 SOLAR_CHAT_TEMPLETE = """As a smart student, answer the given question in Korean. Read paragraph and information, select only one answer between given choices. Let's think step by step.<|im_start|>user
 지문: 

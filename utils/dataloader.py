@@ -43,12 +43,13 @@ def from_processed(dir: str):
 
 
 class CausalLMDataModule:
-    def __init__(self, data_args, tokenizer, chat_templete, chat_templete_plus, chat_templete_exp=None, mode='train'):
+    def __init__(self, data_args, tokenizer, chat_templete, chat_templete_plus, chat_templete_exp=None, chat_templete_plus_exp=None, mode='train'):
         self.data_args = data_args
         self.tokenizer = tokenizer
         self.chat_templete = chat_templete
         self.chat_templete_plus = chat_templete_plus
         self.chat_templete_exp = chat_templete_exp
+        self.chat_templete_plus_exp = chat_templete_plus_exp
         if mode == 'train':
             self.train_datasets, self.valid_datasets = from_processed_train_valid(self.data_args)
         else:
@@ -111,18 +112,29 @@ class CausalLMDataModule:
         question_plus = instance["question_plus"]
         choices = instance["choices"]
         answer = instance["answer"]
-
+        explain = instance['explain']
+        
         # prefix prompt에 formatting
         prompts = []
-        for p, q, qp, c, a in zip(paragraph, question, question_plus, choices, answer):
+        for p, q, qp, c, e, a in zip(paragraph, question, question_plus, choices, explain, answer):
             if qp:
-                _prompt = self.chat_templete_plus.format(p, q, qp, c, a)
-                _prompt = _prompt.split(self.response_temp)[0]
-                prompts.append(_prompt + self.response_temp + "\n")
+                if e != "no":
+                    _prompt = self.chat_templete_plus_exp.format(p, q, qp, c, e, a)
+                    _prompt = _prompt.split(self.response_temp)[0]
+                    prompts.append(_prompt + self.response_temp + "\n")
+                else:
+                    _prompt = self.chat_templete_plus.format(p, q, qp, c, a)
+                    _prompt = _prompt.split(self.response_temp)[0]
+                    prompts.append(_prompt + self.response_temp + "\n")
             else:
-                _prompt = self.chat_templete.format(p, q, c, a)
-                _prompt = _prompt.split(self.response_temp)[0]
-                prompts.append(_prompt + self.response_temp + "\n")
+                if e != "no":
+                    _prompt = self.chat_templete_exp.format(p, q, c, e, a)
+                    _prompt = _prompt.split(self.response_temp)[0]
+                    prompts.append(_prompt + self.response_temp + "\n")                
+                else:
+                    _prompt = self.chat_templete.format(p, q, c, a)
+                    _prompt = _prompt.split(self.response_temp)[0]
+                    prompts.append(_prompt + self.response_temp + "\n")
 
         # tokenization
         outputs = self.tokenizer(
