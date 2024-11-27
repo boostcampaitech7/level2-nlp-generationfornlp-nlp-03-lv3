@@ -61,8 +61,6 @@ def main():
         data_args,
         tokenizer,
         KOWIKI_CHAT_TEMPLETE,
-        KOWIKI_CHAT_TEMPLETE_PLUS,
-        KOWIKI_CHAT_TEMPLETE_EXP
     )
 
     train_dataset, eval_dataset = dm.get_processing_data()

@@ -88,57 +88,22 @@ QWEN_CHAT_TEMPLETE_PLUS = """<|im_start|>system
 <|im_start|>assistant
 {}<|im_end|>"""
 #----------------------------------------------------------------
-KOWIKI_CHAT_TEMPLETE = """<|im_start|>system 
-지문을 읽고 질문의 답을 구하세요.<|im_end|>
+KOWIKI_CHAT_TEMPLETE = """<|im_start|>system
+You are an AI assistant trained to process historical data and answer questions based on reasoning and facts.
+Follow the given structure: Query -> Text -> Reasoning -> Reasoning Answer -> Final Answer.<|im_end|>
 <|im_start|>user
-지문: 
+query:
 {}
-
-질문: 
+text:
 {}
-
-선택지: 
+instruction:
 {}
-
-1, 2, 3, 4, 5 중에 하나를 정답으로 고르세요.
-정답:<|im_end|>
-<|im_start|>assistant
-{}<|im_end|>"""
-KOWIKI_CHAT_TEMPLETE_EXP = """<|im_start|>system 
-지문을 읽고 단계별로 생각하며 정답을 고르세요.<|im_end|>
-<|im_start|>user
-지문: 
+reasoning:
 {}
-
-질문:
+reasoning_answer:
 {}
-
-선택지: 
+final_answer:
 {}
-
-1, 2, 3, 4, 5 중에 하나를 정답으로 고르세요.
-정답:
-{}<|im_end|>
-<|im_start|>assistant
-{}<|im_end|>"""
-KOWIKI_RESPONSE_TEMP = "<|im_start|>assistant"
-KOWIKI_END_TURN = "<|im_end|>"
-KOWIKI_CHAT_TEMPLETE_PLUS = """<|im_start|>system 
-지문을 읽고 질문의 답을 구하세요.<|im_end|>
-<|im_start|>user
-지문: 
-{}
-
-질문: 
-{}
-
-<보기>: 
-{}
-
-선택지: 
-{}
-
-1, 2, 3, 4, 5 중에 하나를 정답으로 고르세요.
-정답:<|im_end|>
+<|im_end|>
 <|im_start|>assistant
 {}<|im_end|>"""
