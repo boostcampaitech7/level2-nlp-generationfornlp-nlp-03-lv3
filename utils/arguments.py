@@ -1,4 +1,5 @@
 import os
+
 from typing import Optional
 from transformers import TrainingArguments, HfArgumentParser
 from dataclasses import dataclass, field
@@ -13,7 +14,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="beomi/Qwen2.5-7B-Instruct-kowiki-qa-context",
+        default="unsloth/Qwen2.5-32B-Instruct-bnb-4bit",
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
             "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
@@ -21,15 +22,15 @@ class ModelArguments:
         },
     )
     quantization: bool = field(
-        default=False,
+        default=True,
         metadata={"help": "QLoRA(4bit) 사용할지 안할지, 만약 사용한다면 optim 수정, 대신 학습 속도가 느려짐"},
     )
     lora_r: int = field(
-        default=6,
+        default=32,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     lora_alpha: int = field(
-        default=8,
+        default=64,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
 
@@ -42,7 +43,7 @@ class DataTrainingArguments:
 
     # 학습 데이터 불러오기
     dataset_name: str = field(
-        default="./resources/raw/train_reformat.csv",
+        default="./resources/for_pre/for_eng_pre_train.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 토크나이저 설정
@@ -69,11 +70,11 @@ class OurTrainingArguments(SFTConfig):
 
     # 기본 학습 설정
     output_dir: Optional[str] = field(
-        default="./resources/checkpoint/",
+        default="./pre_eng/checkpoint",
         metadata={"help": "체크포인트와 모델 출력을 저장할 디렉터리 경로"},
     )
     max_seq_length: int = field(
-        default=2048,
+        default=3000, #2048
         metadata={
             "help": "The maximum total input sequence length after tokenization. Sequences longer "
             "than this will be truncated, sequences shorter will be padded."
@@ -84,32 +85,18 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "학습을 실행할지 여부"},
     )
     do_eval: bool = field(
-        default=True,
+        default=False, #True #flag
         metadata={"help": "평가를 실행할지 여부"},
     )
     # 학습 관련 설정
     num_train_epochs: int = field(
-        default=3,
+        default=1,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
-    # max_steps: int = field(
-    #     default=3,
-    #     metadata={
-    #         "help": "학습 할 스텝 수"
-    #     },
-    # )
     eval_strategy: Optional[str] = field(
-        default="epoch",
+        default="no", #flag
         metadata={"help": "epoch/steps이 끝날때마다 평가"},
     )
-    # save_steps: int = field(
-    #     default=200,
-    #     metadata={"help": "어떤 step에서 저장할지"},
-    # )
-    # eval_steps: int = field(
-    #     default=5,
-    #     metadata={"help": "어떤 step에서 저장할지"},
-    # )
     logging_steps: int = field(default=200)
     save_strategy: Optional[str] = field(
         default="epoch",
@@ -121,15 +108,15 @@ class OurTrainingArguments(SFTConfig):
     )
     save_only_model: bool = field(default=False)
     load_best_model_at_end: bool = field(
-        default=True,
+        default=False, #flag
         metadata={"help": "가장 좋은 모델 로드"},
     )
     per_device_train_batch_size: int = field(
-        default=1,
+        default=8,
         metadata={"help": "학습 중 장치당 배치 크기" "GPU 메모리에 따라 줄여서 사용 / 너무 큰 배치는 지양"},
     )
     per_device_eval_batch_size: int = field(
-        default=1,
+        default=4,
         metadata={
             "help": "평가 중 장치당 배치 크기"
             "per_device_eval_batch_size 따라 accuracy 값이 다르게 나옴"
@@ -158,7 +145,7 @@ class OurTrainingArguments(SFTConfig):
     )
     # Optimizer 설정
     optim: str = field(
-        default="adamw_torch",
+        default="paged_adamw_8bit",
         metadata={
             "help": "옵티마이저 설정, 다른 옵티마이저 확인을 위해 아래 url에서 OptimizerNames 확인"
             "Default : adamw_torch / QLoRA 사용시 : paged_adamw_8bit"
@@ -181,14 +168,6 @@ class OurTrainingArguments(SFTConfig):
         default="cosine",  # cosine_with_restarts
         metadata={"help": "학습률 스케줄러 설정" "cosine_with_restarts"},
     )
-    # warmup_steps: int = field(
-    #     default=0,
-    #     metadata={
-    #         "help": "학습률을 워밍업하기 위한 스텝 수"
-    #         "전체 학습 스텝 수의 2%~5% 정도로 설정하는 것이 일반적"
-    #         "스텝수 = 데이터 개수*에폭수 / 배치사이즈"
-    #     },
-    # )
     report_to: Optional[str] = field(
         default="mlflow",
         metadata={"help": "mlflow로 logging"},

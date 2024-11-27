@@ -61,7 +61,7 @@ class CausalLMDataModule:
             "attention_mask": outputs["attention_mask"],
         }
 
-    def get_processing_data(self):
+    def get_processing_data(self):#flag
         tokenized_dataset = self.datasets.map(
             self._tokenize,
             remove_columns=list(self.datasets.features),
@@ -70,10 +70,10 @@ class CausalLMDataModule:
             load_from_cache_file=True,
             desc="Tokenizing",
         )
-        tokenized_dataset = tokenized_dataset.train_test_split(test_size=0.1, seed=104)
-        train_dataset = tokenized_dataset["train"]
-        eval_dataset = tokenized_dataset["test"]
-        return train_dataset, eval_dataset
+        # tokenized_dataset = tokenized_dataset.train_test_split(test_size=0.1, seed=104)
+        # train_dataset = tokenized_dataset["train"]
+        # eval_dataset = tokenized_dataset["test"]
+        return tokenized_dataset #train_dataset,eval_dataset
 
     def _tokenize_inference(self, instance):
         paragraph = instance["paragraph"]
