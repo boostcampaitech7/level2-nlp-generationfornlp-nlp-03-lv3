@@ -96,6 +96,11 @@ def inference_by_logit(model, dataset, raw_dataset, tokenizer):
                 torch.nn.functional.softmax(torch.tensor(target_logit_list, dtype=torch.float32)).detach().cpu().numpy()
             )
             predict_value = pred_choices_map[np.argmax(probs, axis=-1)]
+
+            prob_dict = {f"prob_{i+1}": float(prob) for i, prob in enumerate(probs[:len_choices])}
+            result = {"id": _id, "answer": predict_value}
+            result.update(prob_dict)
+            
             infer_results.append({"id": _id, "answer": predict_value})
 
     pd.DataFrame(infer_results).to_csv("output.csv", index=False)
