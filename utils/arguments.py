@@ -13,7 +13,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="unsloth/Qwen2.5-32B-Instruct-bnb-4bit",
+        default="Dongspam/toefl_and_sat",
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
             "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
@@ -29,7 +29,7 @@ class ModelArguments:
         metadata={"help": "QLoRA(4bit) 사용할지 안할지, 만약 사용한다면 optim 수정, 대신 학습 속도가 느려짐"},
     )
     lora_r: int = field(
-        default=32,
+        default=64,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     lora_alpha: int = field(
@@ -46,7 +46,7 @@ class DataTrainingArguments:
 
     # 학습 데이터 불러오기
     train_dataset_name: str = field(
-        default="./resources/fold/fold_1_train.csv",
+        default="./resources/checkpoint/merge_dataset_20241127_paragraph.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 검증 데이터 불러오기
@@ -93,12 +93,12 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "학습을 실행할지 여부"},
     )
     do_eval: bool = field(
-        default=True,
+        default=False,
         metadata={"help": "평가를 실행할지 여부"},
     )
     # 학습 관련 설정
     num_train_epochs: int = field(
-        default=3,
+        default=1,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     # max_steps: int = field(

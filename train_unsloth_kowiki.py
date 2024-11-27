@@ -38,48 +38,6 @@ torch.cuda.manual_seed_all(seed)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
-CHAT_TEMPLETE = {
-    "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE,
-    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_CHAT_TEMPLETE,
-    "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE,
-    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE,
-    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE,
-    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE,
-    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE,
-}
-CHAT_TEMPLETE_EXP = {
-    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE_EXP,
-    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE_EXP,
-}
-CHAT_TEMPLETE_PLUS = {
-    "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE_PLUS,
-    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_CHAT_TEMPLETE_PLUS,
-    "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE_PLUS,
-    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE_PLUS,
-    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE_PLUS,
-    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE_PLUS,
-    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE_PLUS,
-}
-RESPONSE_TEMP = {
-    "beomi/gemma-ko-2b": BASELINE_RESPONSE_TEMP,
-    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_RESPONSE_TEMP,
-    "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_RESPONSE_TEMP,
-    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_RESPONSE_TEMP,
-    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_RESPONSE_TEMP,
-    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_RESPONSE_TEMP,
-    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_RESPONSE_TEMP,
-}
-END_TURN = {
-    "beomi/gemma-ko-2b": BASELINE_END_TURN,
-    "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_END_TURN,
-    "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_END_TURN,
-    "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_END_TURN,
-    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_END_TURN,
-    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_END_TURN,
-    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_END_TURN,
-}
-
-
 def main():
     parser = HfArgumentParser(
         (ModelArguments, DataTrainingArguments, OurTrainingArguments)  # arguement 쭉 읽어보면서 이해하기
@@ -102,9 +60,9 @@ def main():
     dm = CausalLMDataModule(
         data_args,
         tokenizer,
-        CHAT_TEMPLETE["unsloth/Qwen2.5-32B-Instruct-bnb-4bit"],
-        CHAT_TEMPLETE_PLUS["unsloth/Qwen2.5-32B-Instruct-bnb-4bit"],
-        CHAT_TEMPLETE_EXP["unsloth/Qwen2.5-32B-Instruct-bnb-4bit"]
+        KOWIKI_CHAT_TEMPLETE,
+        KOWIKI_CHAT_TEMPLETE_PLUS,
+        KOWIKI_CHAT_TEMPLETE_EXP
     )
 
     train_dataset, eval_dataset = dm.get_processing_data()
@@ -135,15 +93,15 @@ def main():
     model.add_adapter(adapter_name=adapter_name, peft_config=new_lora_config)
     #------------
     # Data collactor 설정
-    logger.info(f"response template : {RESPONSE_TEMP['unsloth/Qwen2.5-32B-Instruct-bnb-4bit']}")
+    logger.info(f"response template : {KOWIKI_RESPONSE_TEMP}")
     data_collator = DataCollatorForCompletionOnlyLM(
-        response_template=RESPONSE_TEMP["unsloth/Qwen2.5-32B-Instruct-bnb-4bit"],
+        response_template=KOWIKI_RESPONSE_TEMP,
         tokenizer=tokenizer,
     )
 
     # Custom metric 설정
-    logger.info(f"end turn : {END_TURN['unsloth/Qwen2.5-32B-Instruct-bnb-4bit']}")
-    cm = CasualMetric(tokenizer=tokenizer, end_turn=END_TURN["unsloth/Qwen2.5-32B-Instruct-bnb-4bit"])
+    logger.info(f"end turn : {KOWIKI_END_TURN}")
+    cm = CasualMetric(tokenizer=tokenizer, end_turn=KOWIKI_END_TURN)
 
     # Trainer 초기화
     tokenizer.pad_token = tokenizer.eos_token
@@ -166,12 +124,12 @@ def main():
 
     # experiment를 active하고 experiment instance를 반환.
     # 원하는 실험 이름으로 바꾸기.
-    mlflow.set_experiment("gen_parag")
+    mlflow.set_experiment("kowiki")
     # MLflow autolog 활성화
     mlflow.transformers.autolog()
 
     # Training
-    with mlflow.start_run(run_name="exp1"):  # 실험 안 run name
+    with mlflow.start_run(run_name="kowiki"):  # 실험 안 run name
         mlflow.log_param("lora_r", model_args.lora_r)
         mlflow.log_param("target_modules", ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"])
         mlflow.log_param("lora_alpha", model_args.lora_alpha)
