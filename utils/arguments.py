@@ -13,35 +13,27 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="beomi/Qwen2.5-7B-Instruct-kowiki-qa-context",
+        default="unsloth/Qwen2.5-32B-Instruct-bnb-4bit",
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
             "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
             "beomi/Solar-Ko-Recovery-11B"
+            "hungun/Qwen2.5-14B-Instruct-kowiki-qa"
+            "ludobico/gemma2_9b_it_1ep_kowiki"
+            "MLP-KTLim/llama-3-Korean-Bllossom-8B"
+            "lcw99/llama-3-10b-wiki-240709-f"
         },
     )
-    use_kfold: bool = field(
-        default=False,
-        metadata={"help": "k-fold 사용 여부"}
-    )
-    k_fold: int = field(
-        default = 5,
-        metadata={"help": "k-fold에서 사용할 k값"}
-    )
-    fold_num: int = field(
-        default=0,
-        metadata={"help": "현재 학습 중인 fold 번호"}
-    )
     quantization: bool = field(
-        default=False,
+        default=True,
         metadata={"help": "QLoRA(4bit) 사용할지 안할지, 만약 사용한다면 optim 수정, 대신 학습 속도가 느려짐"},
     )
     lora_r: int = field(
-        default=6,
+        default=64,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     lora_alpha: int = field(
-        default=8,
+        default=128,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
 
@@ -53,8 +45,13 @@ class DataTrainingArguments:
     """
 
     # 학습 데이터 불러오기
-    dataset_name: str = field(
-        default="./resources/aug/result_3/final_aug_cleaned.csv",
+    train_dataset_name: str = field(
+        default="./resources/fold/fold_data_1125/1125_fold_1_train.csv",
+        metadata={"help": "The name of the dataset to use."},
+    )
+    # 검증 데이터 불러오기
+    valid_dataset_name: str = field(
+        default="./resources/1128_kice_only.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 토크나이저 설정
@@ -81,11 +78,11 @@ class OurTrainingArguments(SFTConfig):
 
     # 기본 학습 설정
     output_dir: Optional[str] = field(
-        default="./resources/checkpoint/fold/4",
+        default="./resources/final/",
         metadata={"help": "체크포인트와 모델 출력을 저장할 디렉터리 경로"},
     )
     max_seq_length: int = field(
-        default=2048,
+        default=3000, # 2048
         metadata={
             "help": "The maximum total input sequence length after tokenization. Sequences longer "
             "than this will be truncated, sequences shorter will be padded."
@@ -96,12 +93,12 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "학습을 실행할지 여부"},
     )
     do_eval: bool = field(
-        default=True,
+        default=False,
         metadata={"help": "평가를 실행할지 여부"},
     )
     # 학습 관련 설정
     num_train_epochs: int = field(
-        default=3,
+        default=1,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     # max_steps: int = field(
@@ -109,11 +106,11 @@ class OurTrainingArguments(SFTConfig):
     #     metadata={
     #         "help": "학습 할 스텝 수"
     #     },
+    # # )
+    # eval_strategy: Optional[str] = field(
+    #     default="epoch",
+    #     metadata={"help": "epoch/steps이 끝날때마다 평가"},
     # )
-    eval_strategy: Optional[str] = field(
-        default="epoch",
-        metadata={"help": "epoch/steps이 끝날때마다 평가"},
-    )
     # save_steps: int = field(
     #     default=200,
     #     metadata={"help": "어떤 step에서 저장할지"},
@@ -132,12 +129,12 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "가장 좋은 체크포인트 n개만 저장하여 이전 모델을 덮어씌우도록 설정"},
     )
     save_only_model: bool = field(default=False)
-    load_best_model_at_end: bool = field(
-        default=True,
-        metadata={"help": "가장 좋은 모델 로드"},
-    )
+    # load_best_model_at_end: bool = field(
+    #     default=True,
+    #     metadata={"help": "가장 좋은 모델 로드"},
+    # )
     per_device_train_batch_size: int = field(
-        default=1,
+        default=8,
         metadata={"help": "학습 중 장치당 배치 크기" "GPU 메모리에 따라 줄여서 사용 / 너무 큰 배치는 지양"},
     )
     per_device_eval_batch_size: int = field(
@@ -157,23 +154,23 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "학습률 설정" "학습률 스케줄러(linear, cosine) 사용시 Max 값"},
     )
     # 모델 평가 관련
-    metric_for_best_model: Optional[str] = field(
-        default="eval_loss",
-        metadata={"help": "가장 좋은 모델을 평가하기 위한 메트릭 설정" "본 프로젝트에서는 eval_loss를 기본적으로 사용"},
-    )
-    greater_is_better: bool = field(
-        default=False,
-        metadata={
-            "help": "설정한 메트릭에 대해 더 큰 값이 더 좋다 혹은 더 작은 값이 더 좋다 설정"
-            "Accuracy는 True 사용 / eval_loss는 False 사용"
-        },
-    )
+    # metric_for_best_model: Optional[str] = field(
+    #     default="eval_loss",
+    #     metadata={"help": "가장 좋은 모델을 평가하기 위한 메트릭 설정" "본 프로젝트에서는 eval_loss를 기본적으로 사용"},
+    # )
+    # greater_is_better: bool = field(
+    #     default=False,
+    #     metadata={
+    #         "help": "설정한 메트릭에 대해 더 큰 값이 더 좋다 혹은 더 작은 값이 더 좋다 설정"
+    #         "Accuracy는 True 사용 / eval_loss는 False 사용"
+    #     },
+    # )
     # Optimizer 설정
     optim: str = field(
-        default="adamw_torch",
+        default="adamw_8bit",
         metadata={
             "help": "옵티마이저 설정, 다른 옵티마이저 확인을 위해 아래 url에서 OptimizerNames 확인"
-            "Default : adamw_torch / QLoRA 사용시 : paged_adamw_8bit"
+            "Default : adamw_torch / QLoRA 사용시 : paged_adamw_8bit / adamw_8bit"
             "https://github.com/huggingface/transformers/blob/main/src/transformers/training_args.py"
         },
     )
