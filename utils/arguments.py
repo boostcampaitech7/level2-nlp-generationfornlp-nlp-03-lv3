@@ -13,7 +13,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="Dongspam/toefl_and_sat",
+        default="resources/checkpoint/kowikiDongspam/toefl_and_sat/checkpoint-337",
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
             "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
@@ -22,6 +22,7 @@ class ModelArguments:
             "ludobico/gemma2_9b_it_1ep_kowiki"
             "MLP-KTLim/llama-3-Korean-Bllossom-8B"
             "lcw99/llama-3-10b-wiki-240709-f"
+            "Dongspam/toefl_and_sat",
         },
     )
     quantization: bool = field(
@@ -29,7 +30,7 @@ class ModelArguments:
         metadata={"help": "QLoRA(4bit) 사용할지 안할지, 만약 사용한다면 optim 수정, 대신 학습 속도가 느려짐"},
     )
     lora_r: int = field(
-        default=64,
+        default=32,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     lora_alpha: int = field(
@@ -46,7 +47,7 @@ class DataTrainingArguments:
 
     # 학습 데이터 불러오기
     train_dataset_name: str = field(
-        default="./resources/checkpoint/merge_dataset_20241127_paragraph.csv",
+        default="./resources/auged/df_final_real.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 검증 데이터 불러오기
@@ -78,7 +79,7 @@ class OurTrainingArguments(SFTConfig):
 
     # 기본 학습 설정
     output_dir: Optional[str] = field(
-        default="./resources/checkpoint/",
+        default="./resources/checkpoint/kowiki_final",
         metadata={"help": "체크포인트와 모델 출력을 저장할 디렉터리 경로"},
     )
     max_seq_length: int = field(
@@ -107,10 +108,10 @@ class OurTrainingArguments(SFTConfig):
     #         "help": "학습 할 스텝 수"
     #     },
     # )
-    eval_strategy: Optional[str] = field(
-        default="epoch",
-        metadata={"help": "epoch/steps이 끝날때마다 평가"},
-    )
+    # eval_strategy: Optional[str] = field(
+    #     default="epoch",
+    #     metadata={"help": "epoch/steps이 끝날때마다 평가"},
+    # )
     # save_steps: int = field(
     #     default=200,
     #     metadata={"help": "어떤 step에서 저장할지"},
@@ -129,10 +130,10 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "가장 좋은 체크포인트 n개만 저장하여 이전 모델을 덮어씌우도록 설정"},
     )
     save_only_model: bool = field(default=False)
-    load_best_model_at_end: bool = field(
-        default=True,
-        metadata={"help": "가장 좋은 모델 로드"},
-    )
+    # load_best_model_at_end: bool = field(
+    #     default=True,
+    #     metadata={"help": "가장 좋은 모델 로드"},
+    # )
     per_device_train_batch_size: int = field(
         default=4,
         metadata={"help": "학습 중 장치당 배치 크기" "GPU 메모리에 따라 줄여서 사용 / 너무 큰 배치는 지양"},
@@ -146,7 +147,7 @@ class OurTrainingArguments(SFTConfig):
         },
     )
     gradient_accumulation_steps: int = field(
-        default=2,
+        default=1,
         metadata={"help": "그래디언트 누적을 위한 스텝 수" "GPU 자원이 부족할 시 배치를 줄이고 누적 수를 늘려 학습"},
     )
     learning_rate: int = field(

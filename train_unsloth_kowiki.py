@@ -6,8 +6,7 @@ import numpy as np
 import logging
 import logging.config
 from utils.prompt import *
-from utils.metric import CasualMetric
-from utils.dataloader import CausalLMDataModule
+from utils.dataloader_kowiki import CausalLMDataModule
 from utils.arguments import ModelArguments, DataTrainingArguments, OurTrainingArguments
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from unsloth import FastLanguageModel
@@ -63,7 +62,7 @@ def main():
         KOWIKI_CHAT_TEMPLETE,
     )
 
-    train_dataset, eval_dataset = dm.get_processing_data()
+    train_dataset = dm.get_processing_data()
 
     logger.info(f"{tokenizer.decode(train_dataset[0]['input_ids'], skip_special_tokens=False)}")
     logger.info(f"{tokenizer.decode(train_dataset[-1]['input_ids'], skip_special_tokens=False)}")
@@ -80,8 +79,6 @@ def main():
     lora_alpha=model_args.lora_alpha,  # Scaling factor
     lora_dropout=0,  # Dropout rate for LoRA    
     bias="none",  # Bias type
-    use_gradient_checkpointing="unsloth",  # True or "unsloth" for very long context
-    random_state=104,
     use_rslora=False,  # We support rank stabilized LoRA
     loftq_config=None,  # And LoftQ
     )
@@ -89,6 +86,7 @@ def main():
     # Add a new adapter with the correct configuration object
     adapter_name = "new_adapter"
     model.add_adapter(adapter_name=adapter_name, peft_config=new_lora_config)
+    model._set_gradient_checkpointing(enable=True)
     #------------
     # Data collactor 설정
     logger.info(f"response template : {KOWIKI_RESPONSE_TEMP}")
@@ -99,7 +97,6 @@ def main():
 
     # Custom metric 설정
     logger.info(f"end turn : {KOWIKI_END_TURN}")
-    cm = CasualMetric(tokenizer=tokenizer, end_turn=KOWIKI_END_TURN)
 
     # Trainer 초기화
     tokenizer.pad_token = tokenizer.eos_token
@@ -110,11 +107,8 @@ def main():
     trainer = SFTTrainer(
         model=model,
         train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
         data_collator=data_collator,
         tokenizer=tokenizer,
-        compute_metrics=cm.compute_metrics,
-        preprocess_logits_for_metrics=cm.preprocess_logits_for_metrics,
         args=training_args,
     )
 

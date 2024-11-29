@@ -89,21 +89,28 @@ QWEN_CHAT_TEMPLETE_PLUS = """<|im_start|>system
 {}<|im_end|>"""
 #----------------------------------------------------------------
 KOWIKI_CHAT_TEMPLETE = """<|im_start|>system
-You are an AI assistant trained to process historical data and answer questions based on reasoning and facts.
-Follow the given structure: Query -> Text -> Reasoning -> Reasoning Answer -> Final Answer.<|im_end|>
+문제를 풀기 위해 단계별 사고 과정을 거쳐 정답을 도출하세요.<|im_end|>
 <|im_start|>user
-query:
+학습 목적:
 {}
-text:
+
+배경 지식:
 {}
-instruction:
+
+문제:
 {}
-reasoning:
+
+사고 흐름:
 {}
-reasoning_answer:
+
+사고 흐름 답변:
 {}
-final_answer:
-{}
+
+정답을 도출해 주세요.
 <|im_end|>
 <|im_start|>assistant
-{}<|im_end|>"""
+{}
+<|im_end|>"""
+
+KOWIKI_RESPONSE_TEMP = "<|im_start|>assistant"
+KOWIKI_END_TURN = "<|im_end|>"

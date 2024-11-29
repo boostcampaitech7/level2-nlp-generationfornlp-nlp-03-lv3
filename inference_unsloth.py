@@ -38,8 +38,6 @@ CHAT_TEMPLETE = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE,
     "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_CHAT_TEMPLETE,
     "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE,
-    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE,
-    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE,
 }
 CHAT_TEMPLETE_EXP = {
     "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE_EXP,
@@ -48,22 +46,16 @@ CHAT_TEMPLETE_PLUS = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE_PLUS,
     "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_CHAT_TEMPLETE_PLUS,
     "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE_PLUS,
-    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE_PLUS,
-    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE_PLUS,
 }
 RESPONSE_TEMP = {
     "beomi/gemma-ko-2b": BASELINE_RESPONSE_TEMP,
     "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_RESPONSE_TEMP,
     "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_RESPONSE_TEMP,
-    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_RESPONSE_TEMP,
-    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_RESPONSE_TEMP,
 }
 END_TURN = {
     "beomi/gemma-ko-2b": BASELINE_END_TURN,
     "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_END_TURN,
     "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_END_TURN,
-    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_END_TURN,
-    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_END_TURN,
 }
 
 def inference_by_logit(model, dataset, raw_dataset, tokenizer):
@@ -96,7 +88,7 @@ def inference_by_logit(model, dataset, raw_dataset, tokenizer):
             
             infer_results.append(result)
 
-    pd.DataFrame(infer_results).to_csv("output.csv", index=False)
+    pd.DataFrame(infer_results).to_csv("kowiki_output.csv", index=False)
 
 
 if __name__ == "__main__":
@@ -104,7 +96,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--strategy", type=str, default="logit", choices=['logit', 'generation'])
     parser.add_argument("--model_name_or_path", type=str, default="unsloth/Qwen2.5-32B-Instruct-bnb-4bit")
-    parser.add_argument("--checkpoint", type=str, default="./resources/checkpoint/Dongspam/toefl_and_sat/checkpoint-822")
+    parser.add_argument("--checkpoint", type=str, default="./resources/checkpoint/kowiki_final/checkpoint-931")
     parser.add_argument("--dataset_name", type=str, default="./resources/raw/test_reformat.csv")
     parser.add_argument("--truncation", type=bool, default=False)
     parser.add_argument("--padding", type=bool, default=False)

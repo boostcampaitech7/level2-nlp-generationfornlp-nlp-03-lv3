@@ -44,8 +44,6 @@ CHAT_TEMPLETE = {
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE,
     "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE,
     "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE,
-    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE,
-    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE,
 }
 CHAT_TEMPLETE_EXP = {
     "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE_EXP,
@@ -57,8 +55,6 @@ CHAT_TEMPLETE_PLUS = {
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE_PLUS,
     "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE_PLUS,
     "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE_PLUS,
-    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE_PLUS,
-    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE_PLUS,
 }
 RESPONSE_TEMP = {
     "beomi/gemma-ko-2b": BASELINE_RESPONSE_TEMP,
@@ -66,8 +62,6 @@ RESPONSE_TEMP = {
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_RESPONSE_TEMP,
     "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_RESPONSE_TEMP,
     "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_RESPONSE_TEMP,
-    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_RESPONSE_TEMP,
-    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_RESPONSE_TEMP,
 }
 END_TURN = {
     "beomi/gemma-ko-2b": BASELINE_END_TURN,
@@ -75,17 +69,14 @@ END_TURN = {
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_END_TURN,
     "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_END_TURN,
     "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_END_TURN,
-    "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_END_TURN,
-    "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_END_TURN,
 }
-
 
 def main():
     parser = HfArgumentParser(
         (ModelArguments, DataTrainingArguments, OurTrainingArguments)  # arguement 쭉 읽어보면서 이해하기
     )
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
-    training_args.output_dir = training_args.output_dir + model_args.model_name_or_path
+    training_args.output_dir = training_args.output_dir
     training_args.fp16 = not is_bfloat16_supported()
     training_args.bf16 = is_bfloat16_supported()
 
@@ -116,7 +107,7 @@ def main():
     logger.info(f"min token length: {min(train_dataset_token_lengths)}")
     logger.info(f"avg token length: {np.mean(train_dataset_token_lengths)}")
 
-    #------------
+    '''#------------
     # Define a new LoRA configuration using LoraConfig
     new_lora_config = LoraConfig(
     r=model_args.lora_r,  # LoRA rank
@@ -132,8 +123,9 @@ def main():
 
     # Add a new adapter with the correct configuration object
     adapter_name = "new_adapter"
-    model.add_adapter(adapter_name=adapter_name, peft_config=new_lora_config)
+    model.add_adapter(adapter_name=adapter_name, peft_config=new_lora_config)'''
     #------------
+    
     # Data collactor 설정
     logger.info(f"response template : {RESPONSE_TEMP['unsloth/Qwen2.5-32B-Instruct-bnb-4bit']}")
     data_collator = DataCollatorForCompletionOnlyLM(
@@ -154,7 +146,7 @@ def main():
     trainer = SFTTrainer(
         model=model,
         train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
+        #eval_dataset=eval_dataset,
         data_collator=data_collator,
         tokenizer=tokenizer,
         compute_metrics=cm.compute_metrics,
