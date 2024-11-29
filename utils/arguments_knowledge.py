@@ -33,7 +33,7 @@ class ModelArguments:
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
     lora_alpha: int = field(
-        default=128,
+        default=64,
         metadata={"help": "학습 할 에폭 수" "LLM 학습 시 에폭 수를 1~3으로 줄여서 실험 진행 필요"},
     )
 
@@ -46,12 +46,12 @@ class DataTrainingArguments:
 
     # 학습 데이터 불러오기
     train_dataset_name: str = field(
-        default="./resources/fold/1125_fold_1_train_exp.csv",
+        default="./resources/fold/1125_fold_0_train.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 검증 데이터 불러오기
     valid_dataset_name: str = field(
-        default="./resources/fold/1125_fold_1_val.csv",
+        default="./resources/fold/1125_fold_0_val.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 토크나이저 설정
@@ -78,11 +78,11 @@ class OurTrainingArguments(SFTConfig):
 
     # 기본 학습 설정
     output_dir: Optional[str] = field(
-        default="./resources/final/",
+        default="./resources/knowledge/",
         metadata={"help": "체크포인트와 모델 출력을 저장할 디렉터리 경로"},
     )
     max_seq_length: int = field(
-        default=3000, # 2048
+        default=2048, # 2048
         metadata={
             "help": "The maximum total input sequence length after tokenization. Sequences longer "
             "than this will be truncated, sequences shorter will be padded."
@@ -92,9 +92,8 @@ class OurTrainingArguments(SFTConfig):
         default=True,
         metadata={"help": "학습을 실행할지 여부"},
     )
-    # 
     do_eval: bool = field(
-        default=True,
+        default=False,
         metadata={"help": "평가를 실행할지 여부"},
     )
     # 학습 관련 설정
@@ -108,10 +107,10 @@ class OurTrainingArguments(SFTConfig):
     #         "help": "학습 할 스텝 수"
     #     },
     # )
-    eval_strategy: Optional[str] = field(
-        default="epoch",
-        metadata={"help": "epoch/steps이 끝날때마다 평가"},
-    )
+    # eval_strategy: Optional[str] = field(
+    #     default="epoch",
+    #     metadata={"help": "epoch/steps이 끝날때마다 평가"},
+    # )
     # save_steps: int = field(
     #     default=200,
     #     metadata={"help": "어떤 step에서 저장할지"},
@@ -130,16 +129,16 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "가장 좋은 체크포인트 n개만 저장하여 이전 모델을 덮어씌우도록 설정"},
     )
     save_only_model: bool = field(default=False)
-    load_best_model_at_end: bool = field(
-        default=True,
-        metadata={"help": "가장 좋은 모델 로드"},
-    )
+    # load_best_model_at_end: bool = field(
+    #     default=True,
+    #     metadata={"help": "가장 좋은 모델 로드"},
+    # )
     per_device_train_batch_size: int = field(
         default=8,
         metadata={"help": "학습 중 장치당 배치 크기" "GPU 메모리에 따라 줄여서 사용 / 너무 큰 배치는 지양"},
     )
     per_device_eval_batch_size: int = field(
-        default=8,
+        default=1,
         metadata={
             "help": "평가 중 장치당 배치 크기"
             "per_device_eval_batch_size 따라 accuracy 값이 다르게 나옴"
@@ -155,17 +154,17 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "학습률 설정" "학습률 스케줄러(linear, cosine) 사용시 Max 값"},
     )
     # 모델 평가 관련
-    metric_for_best_model: Optional[str] = field(
-        default="eval_loss",
-        metadata={"help": "가장 좋은 모델을 평가하기 위한 메트릭 설정" "본 프로젝트에서는 eval_loss를 기본적으로 사용"},
-    )
-    greater_is_better: bool = field(
-        default=False,
-        metadata={
-            "help": "설정한 메트릭에 대해 더 큰 값이 더 좋다 혹은 더 작은 값이 더 좋다 설정"
-            "Accuracy는 True 사용 / eval_loss는 False 사용"
-        },
-    )
+    # metric_for_best_model: Optional[str] = field(
+    #     default="eval_loss",
+    #     metadata={"help": "가장 좋은 모델을 평가하기 위한 메트릭 설정" "본 프로젝트에서는 eval_loss를 기본적으로 사용"},
+    # )
+    # greater_is_better: bool = field(
+    #     default=False,
+    #     metadata={
+    #         "help": "설정한 메트릭에 대해 더 큰 값이 더 좋다 혹은 더 작은 값이 더 좋다 설정"
+    #         "Accuracy는 True 사용 / eval_loss는 False 사용"
+    #     },
+    # )
     # Optimizer 설정
     optim: str = field(
         default="adamw_8bit",

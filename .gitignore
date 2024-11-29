@@ -1,6 +1,7 @@
 # My custom
 lightning_logs/
 mlruns/
+resources/
 resources/merge/
 database/bm25_model/
 resources/checkpoint/

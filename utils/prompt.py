@@ -34,7 +34,7 @@ BASELINE_CHAT_TEMPLETE_PLUS = """지문을 읽고 질문의 답을 구하세요.
 
 
 QWEN_CHAT_TEMPLETE = """<|im_start|>system 
-지문을 읽고 질문의 답을 구하세요.<|im_end|>
+지문을 읽고 단계별로 생각하며 정답을 고르세요.<|im_end|>
 <|im_start|>user
 지문: 
 {}
@@ -69,7 +69,7 @@ QWEN_CHAT_TEMPLETE_EXP = """<|im_start|>system
 QWEN_RESPONSE_TEMP = "<|im_start|>assistant"
 QWEN_END_TURN = "<|im_end|>"
 QWEN_CHAT_TEMPLETE_PLUS = """<|im_start|>system 
-지문을 읽고 질문의 답을 구하세요.<|im_end|>
+지문을 읽고 단계별로 생각하며 정답을 고르세요.<|im_end|>
 <|im_start|>user
 지문: 
 {}

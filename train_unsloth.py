@@ -166,7 +166,7 @@ def main():
     mlflow.transformers.autolog()
 
     # Training
-    with mlflow.start_run(run_name="fold-1"):  # 실험 안 run name
+    with mlflow.start_run(run_name="1125_fold-1-exp"):  # 실험 안 run name
         mlflow.log_param("lora_r", model_args.lora_r)
         mlflow.log_param("target_modules", ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"])
         mlflow.log_param("lora_alpha", model_args.lora_alpha)

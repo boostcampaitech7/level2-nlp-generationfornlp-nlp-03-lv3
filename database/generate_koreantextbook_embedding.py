@@ -38,7 +38,7 @@ def main(args):
     seed_everything(args)
 
     LOGGER.info("*** Building Vector Database ***")
-    tokenizer = AutoTokenizer.from_pretrained("beomi/Solar-Ko-Recovery-11B")
+    tokenizer = AutoTokenizer.from_pretrained("unsloth/Qwen2.5-32B-Instruct-bnb-4bit")
 
     print(f">>> Load data")
     # dataset = load_dataset("maywell/korean_textbooks", "tiny-textbooks")

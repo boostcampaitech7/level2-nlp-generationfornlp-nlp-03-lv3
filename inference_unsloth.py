@@ -39,17 +39,20 @@ CHAT_TEMPLETE = {
     "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_CHAT_TEMPLETE,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE,
     "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE,
     "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE,
     "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE,
 }
 CHAT_TEMPLETE_EXP = {
     "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE_EXP,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE_EXP,
 }
 CHAT_TEMPLETE_PLUS = {
     "beomi/gemma-ko-2b": BASELINE_CHAT_TEMPLETE_PLUS,
     "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_CHAT_TEMPLETE_PLUS,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_CHAT_TEMPLETE_PLUS,
     "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_CHAT_TEMPLETE_PLUS,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_CHAT_TEMPLETE_PLUS,
     "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_CHAT_TEMPLETE_PLUS,
     "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_CHAT_TEMPLETE_PLUS,
 }
@@ -58,6 +61,7 @@ RESPONSE_TEMP = {
     "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_RESPONSE_TEMP,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_RESPONSE_TEMP,
     "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_RESPONSE_TEMP,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_RESPONSE_TEMP,
     "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_RESPONSE_TEMP,
     "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_RESPONSE_TEMP,
 }
@@ -66,6 +70,7 @@ END_TURN = {
     "ludobico/gemma2_9b_it_1ep_kowiki": BASELINE_END_TURN,
     "beomi/Qwen2.5-7B-Instruct-kowiki-qa-context": QWEN_END_TURN,
     "hungun/Qwen2.5-14B-Instruct-kowiki-qa": QWEN_END_TURN,
+    "unsloth/Qwen2.5-32B-Instruct-bnb-4bit": QWEN_END_TURN,
     "MLP-KTLim/llama-3-Korean-Bllossom-8B": LLAMA3_END_TURN,
     "lcw99/llama-3-10b-wiki-240709-f": LLAMA3_END_TURN,
 }
@@ -96,14 +101,47 @@ def inference_by_logit(model, dataset, raw_dataset, tokenizer):
             infer_results.append({"id": _id, "answer": predict_value})
 
     pd.DataFrame(infer_results).to_csv("output.csv", index=False)
+    
+    
+def inference_by_logit_p(model, dataset, raw_dataset, tokenizer):
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    pred_choices_map = {0: "1", 1: "2", 2: "3", 3: "4", 4: "5"}
+    infer_results = []
+
+    model.eval()
+    with torch.inference_mode():
+        for i, data in tqdm(enumerate(dataset), total=len(dataset)):
+            _id = raw_dataset[i]["id"]
+            len_choices = len(raw_dataset[i]["choices"].split("\n"))
+            input_ids = torch.tensor(data["input_ids"])
+            input_ids = input_ids.unsqueeze(0)
+            input_ids = input_ids.to(device)
+
+            outputs = model(input_ids)
+
+            logits = outputs.logits[:, -1].flatten().cpu()
+            target_logit_list = [logits[tokenizer.vocab[str(i + 1)]] for i in range(len_choices)]
+            probs = (
+                torch.nn.functional.softmax(torch.tensor(target_logit_list, dtype=torch.float32)).detach().cpu().numpy()
+            )
+            predict_value = pred_choices_map[np.argmax(probs, axis=-1)]
+            
+            prob_dict = {f"prob_{i+1}": float(prob) for i, prob in enumerate(probs[:len_choices])}
+            result = {"id": _id, "answer": predict_value}
+            result.update(prob_dict)
+            
+            infer_results.append(result)
+            
+    pd.DataFrame(infer_results).to_csv("output_prob.csv", index=False)
 
 
 if __name__ == "__main__":
     # fmt: off
     parser = argparse.ArgumentParser()
-    parser.add_argument("--strategy", type=str, default="logit", choices=['logit', 'generation'])
-    parser.add_argument("--model_name_or_path", type=str, default="hungun/Qwen2.5-14B-Instruct-kowiki-qa")
-    parser.add_argument("--checkpoint", type=str, default="./resources/checkpoint/hungun/Qwen2.5-14B-Instruct-kowiki-qa/checkpoint-16779")
+    parser.add_argument("--strategy", type=str, default="prob", choices=['logit', 'prob'])
+    parser.add_argument("--model_name_or_path", type=str, default="unsloth/Qwen2.5-32B-Instruct-bnb-4bit")
+    parser.add_argument("--checkpoint", type=str, default="./resources/final/unsloth/Qwen2.5-32B-Instruct-bnb-4bit/checkpoint-522")
     parser.add_argument("--dataset_name", type=str, default="./resources/raw/test_reformat.csv")
     parser.add_argument("--truncation", type=bool, default=False)
     parser.add_argument("--padding", type=bool, default=False)
@@ -132,3 +170,5 @@ if __name__ == "__main__":
 
     if args.strategy == "logit":
         inference_by_logit(model, inference_dataset, raw_dataset, tokenizer)
+    elif args.strategy == "prob":
+        inference_by_logit_p(model, inference_dataset, raw_dataset, tokenizer)
