@@ -115,10 +115,10 @@ $ tmux kill-session -t (session_name)
 ### 맡은 역할
 |**Member**|**Team**|**Role**|
 |:--|--|--|
-|**김동한**|Data, Model|-**Toefl 데이터 사전학습**<br>- **pdf 데이터셋화**<br>- **모델 훈련 실험**|
+|**김동한**|Data, Model|- **Toefl 데이터 사전학습**<br>- **pdf 데이터셋화**<br>- **모델 훈련 실험**|
 |**김성훈**|Data, Model|내용|
 |**김수아**|Data, Model|내용|
-|**김현욱**|Data|-**MLflow 환경 구축**<br>- **모델 탐색**<br>- **Kowiki 사전 학습**<br>- **모델 훈련 실험**|
+|**김현욱**|Data|- **MLflow 환경 구축**<br>- **모델 탐색**<br>- **Kowiki 사전 학습**<br>- **모델 훈련 실험**|
 |**송수빈**|Data, Model|내용|
 |**신수환**|Data|내용|
 <br>
@@ -224,12 +224,6 @@ Hugging Face에서 한국어가 가능한 LLM들에 대해 성능 평가 진행
         $$
         \frac {A_i \times0.9+B_i\times 0.8} {0.9+0.8}
         $$
-        
-- Min-Max 정규화 가중 평균
-    - 단순 Valid score 기반 가중 평균시, 대부분의 앙상블 대상 모델이 92~93의 유사한 valid score를 가짐
-    - 더 좋은 성능을 가진 모델과 그렇지 않은 모델간 차이를 줄 수 있게 적합한 가중치 정규화의 필요성을 느낌
-    - 앙상블할 모델의 valid score를 0.8~1.2 값으로 scaling하여 가중평균
-    - 0.8~1.2로 scaling할때의 min-max 정규화 수식
 
 $$
 0.8+\frac {x-x_{min}} {x_{max}-x_{min}}\times(1.2-0.8)
