@@ -45,7 +45,7 @@
 │   ├── arguments.py
 │   ├── clean.py
 │   ├── dataloader.py
-│   ├──helpers.py
+│   ├── helpers.py
 │   ├── metric.py
 │   └── prompt.py
 ├── train.py
@@ -115,12 +115,12 @@ $ tmux kill-session -t (session_name)
 ### 맡은 역할
 |**Member**|**Team**|**Role**|
 |:--|--|--|
-|**김동한**|Data, Model|- **Toefl 데이터 사전학습**<br>- **pdf 데이터셋화**<br>- **모델 훈련 실험**|
+|**김동한**|Data, Model|- **TOEFL 데이터 사전학습**<br>- **pdf 데이터셋화**<br>- **모델 훈련 실험**|
 |**김성훈**|Data, Model|내용|
 |**김수아**|Data, Model|내용|
-|**김현욱**|Data|- **MLflow 환경 구축**<br>- **모델 탐색**<br>- **Kowiki 사전 학습**<br>- **모델 훈련 실험**|
+|**김현욱**|Data, Model|- **MLflow 환경 구축**<br>- **모델 탐색**<br>- **Kowiki 사전 학습**<br>- **모델 훈련 실험**|
 |**송수빈**|Data, Model|내용|
-|**신수환**|Data|내용|
+|**신수환**|Data, Model|내용|
 <br>
 
 ## 5. 프로젝트 진행
@@ -166,7 +166,7 @@ Hugging Face에서 한국어가 가능한 LLM들에 대해 성능 평가 진행
 ### 모델 사전학습
 #### 모델링 설명
 - train, test dataset이 국어와 사회 과목 문제로 구성되어 있었기 때문에 국어 문제를 잘 풀기 위한 reasoning 능력과 사회 문제를 잘 풀기 위한 배경 지식을 가지고 있는 모델이 문제를 잘 풀 것이라고 판단
-- reasoning 능력을 키울 수 있는 데이터(Toefl, SAT)와 사회 사전 지식 데이터(Kowiki)로 모델을 사전 학습
+- reasoning 능력을 키울 수 있는 데이터(TOEFL, SAT)와 사회 사전 지식 데이터(Kowiki)로 모델을 사전 학습
 
 #### 결과 분석
 - 정량적 평가 : 제안하는 모델이 기존 backbone의 성능보다 더 좋은 것을 확인하였으나, 모델 학습의 cost가 커지는 것 대비 성능의 차이가 미미한 것으로 판단됨
@@ -246,9 +246,9 @@ $$
 
 **Public Leader Board 순위**
 
-<img src="[./markdownimg/Leader1.png](https://github.com/user-attachments/assets/2293845f-c342-4989-9c79-000dae6062c7)"/>
+<img src="https://github.com/user-attachments/assets/7c4a1e2f-5f05-42a9-a4ee-baad6935f530"/>
 
 
 **Private Leader Board 순위**
 
-<img src="[./markdownimg/Leader2.png](https://github.com/user-attachments/assets/cc48bcc5-d0fb-4d64-be8a-2a5f2ce876d7)"/>
+<img src="https://github.com/user-attachments/assets/54a48d5f-6b46-4740-8e66-914bcac52f0d"/>
