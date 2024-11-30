@@ -54,7 +54,7 @@ def translate_dataset(api_key, input_file, output_file, subject_filter):
 # 스크립트 실행
 if __name__ == '__main__':
     # 사용자 입력
-    api_key = 'c36fe977-0279-4fba-9b3a-275babc2feb9:fx'
+    api_key = ''
     input_file = 'sat_world_and_us_history.csv'
     output_file = 'sat_us_history_translated.csv'
 
