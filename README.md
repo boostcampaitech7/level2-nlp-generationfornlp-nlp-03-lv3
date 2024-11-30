@@ -116,10 +116,10 @@ $ tmux kill-session -t (session_name)
 ### 맡은 역할
 |**Member**|**Team**|**Role**|
 |:--|--|--|
-|**김동한**|Data, Model|**Toefl 데이터 사전학습**<br>- **pdf 데이터셋화**<br>- **모델 훈련 실험**|
+|**김동한**|Data, Model|-**Toefl 데이터 사전학습**<br>- **pdf 데이터셋화**<br>- **모델 훈련 실험**|
 |**김성훈**|Data, Model|내용|
 |**김수아**|Data, Model|내용|
-|**김현욱**|Data|**MLflow 환경 구축**<br>- **모델 탐색**<br>- **Kowiki 사전 학습**<br>- **모델 훈련 실험**|
+|**김현욱**|Data|-**MLflow 환경 구축**<br>- **모델 탐색**<br>- **Kowiki 사전 학습**<br>- **모델 훈련 실험**|
 |**송수빈**|Data, Model|내용|
 |**신수환**|Data|내용|
 <br>
@@ -131,8 +131,6 @@ $ tmux kill-session -t (session_name)
 | **Augmentation** | 데이터셋의 불균형성을 해소하기 위해 다양한 방법으로 데이터 증강 수행 |
 | **Model Exploration** | 데이터셋과 STS  task를 수행하기 적합한 pre-trained model 선정 |
 | Second-stream with GNN | 단어들 사이의 유의어 관계를 모델링하기 위해 Graph Neural Networks (GNN)을 second-stream으로 NLP 모델에 통합하고 성능 평가 / 최종 제출 때는 사용 x |
-| **Contrastive Learning** |  STS Task에서 SOTA의 성능을 달성했던 Contrastive Learning을 본 프로젝트에 적용하여 성능 평가 |
-| Clustering | 문장 사이의 코사인 유사도를 바탕으로 라벨관의 상관관계를 탐구하여 모델에의 활용 방안 및 전처리 방법 고안 / 최종 제출 때는 사용 x|
 | **Soft Voting Ensemble** | 증강된 데이터셋으로 학습한 다양한 model의 예측확률을 평균하여 여러 모델의 강점을 결합해 성능 향상 |
 
 
