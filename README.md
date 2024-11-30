@@ -51,7 +51,7 @@
 ├── train.py
 ├── train_unsloth.py
 ├── inference.py
-├── inference_unsloth.py
+└── inference_unsloth.py
 ```
 
 ## 3. Installation and Quick Start
@@ -163,7 +163,7 @@ Hugging Face에서 한국어가 가능한 LLM들에 대해 성능 평가 진행
 | [hungun/Qwen2.5-7B-Instruct-kowiki-qa](https://huggingface.co/hungun/Qwen2.5-7B-Instruct-kowiki-qa) | 0.3408 | 0.7396 |
 
 
-### 모델 사전학습
+### 모델 1차 학습
 #### 모델링 설명
 - train, test dataset이 국어와 사회 과목 문제로 구성되어 있었기 때문에 국어 문제를 잘 풀기 위한 reasoning 능력과 사회 문제를 잘 풀기 위한 배경 지식을 가지고 있는 모델이 문제를 잘 풀 것이라고 판단
 - reasoning 능력을 키울 수 있는 데이터(TOEFL, SAT)와 사회 사전 지식 데이터(Kowiki)로 모델을 사전 학습
