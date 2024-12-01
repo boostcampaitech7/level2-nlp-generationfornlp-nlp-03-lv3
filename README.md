@@ -170,7 +170,7 @@ Hugging Face에서 한국어가 가능한 LLM들에 대해 성능 평가 진행
 | Data | Public Accuracy | Private Accuracy |
 | --- | --- | --- |
 | merge_1125 | 0.7857 | 0.7586 |
-| TOEFL -> merge_1125 | 0.7880 | 0.7793 |
+| TOEFL → merge_1125 | 0.7880 | 0.7793 |
 
 #### 결과 분석
 - 위 두 실험을 비교해보면, TOEFL로 1차 학습을 진행했을 때 Public, Private Accuracy 모두 상승하여 1차 학습이 효과가 있음을 확인할 수 있음.
@@ -240,12 +240,12 @@ Hugging Face에서 한국어가 가능한 LLM들에 대해 성능 평가 진행
 - (2) K-Fold
 
 **(1) 증강 데이터로 학습**
-| Data (1차 -> 2차) | Public Accuracy | Private Accuracy |
+| Data (1차 → 2차) | Public Accuracy | Private Accuracy |
 | --- | --- | --- |
 | curr_sat | 0.7765 | 0.7632 |
 | merge_1122 | 0.7811 | 0.7862 |
-| TOEFL+SAT -> merge_1127 | 0.7972 | 0.7770 |
-| TOEFL+SAT -> merge_1127(지문생성) | 0.7949 | 0.7701 |
+| TOEFL+SAT → merge_1127 | 0.7972 | 0.7770 |
+| TOEFL+SAT → merge_1127(지문생성) | 0.7949 | 0.7701 |
 
 **curr_sat** : 검정고시 + KBS한국어능력시험 + PSAT<br>
 **merge_1122** : 검정고시 + KBS한국어능력시험 + PSAT + 공무원 기출문제은행('국어', '사회', '한국사', '경제학', '교육학')<br>
