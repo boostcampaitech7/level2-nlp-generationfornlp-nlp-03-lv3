@@ -172,29 +172,22 @@ Hugging Face에서 한국어가 가능한 LLM들에 대해 성능 평가 진행
       - HighSchool 데이터 중 역사, 경제, 정치, 지리, 심리
 - KLUE-MRC
       - 경제, 교육산업, 국제, 부동산, 사회, 생활, 책마을
+
 #### Source 별 분포
-|  | Count | Ratio |
-| --- | --- | --- |
-| 수능형 문제 | 0 | 0.000000 |
-| KMMLU | 72 | 0.035468 |
-| MMMLU | 719 | 0.354187 |
-| KLUE-MRC | 1239 | 0.610345 |
+
+<img src="https://github.com/user-attachments/assets/fd6fce6c-113e-4ca2-9427-5949dd461747" width="600" />
       
 #### Subject 별 분포
-|  | Count | Ratio |
-| --- | --- | --- |
-| korean history | 72 | 0.035468 |
-| world history | 192 | 0.094581 |
-| us history | 139 | 0.068473 |
-| european history | 118 | 0.058128 |
-| psychology | 140 | 0.068966 |
-| macroeconomics | 78 | 0.038424 |
-| microeconomics | 36 | 0.017734 |
-| government | 9 | 0.004433 |
-| geography | 7 | 0.003448 |
-| KLUE-MRC | 1239 | 0.610345 |
+
+<img src="https://github.com/user-attachments/assets/21e511ed-7033-4dc9-8e9a-f8e2f756f2db" width="600" />
+
         
 #### 문장 길이 분포
+
+| KMMLU | MMMLU | KLUE-MRC |
+| --- | --- | --- |
+| <img src="https://github.com/user-attachments/assets/a56c9e92-c8df-4b1b-a983-22c84dd620c8" width="600" /> | <img src="https://github.com/user-attachments/assets/0de39eb6-9ce3-4071-812f-245e9b49b905" width="600" /> | <img src="https://github.com/user-attachments/assets/a797e100-b84f-443c-991b-9c7b0244e867" width="600" /> |
+
 |  | KMMLU | MMMLU | KLUE-MRC |
 | --- | --- | --- | --- |
 | count | 72 | 719 | 1239 |
@@ -205,6 +198,7 @@ Hugging Face에서 한국어가 가능한 LLM들에 대해 성능 평가 진행
 | 50% | 141.50 | 329.00 | 909.00 |
 | 75% | 190.25 | 520.50 | 1252.00 |
 | max | 353.00 | 1292.00 | 2017.00 |
+
   
 #### 데이터 분석 인사이트
 1. 학습 데이터의 source는 KMMLU, MMMLU, KLUE-MRC로, 학습 데이터에는 수능형 문제가 포함되어 있지 않음
@@ -284,6 +278,23 @@ Hugging Face에서 한국어가 가능한 LLM들에 대해 성능 평가 진행
    - 2,030개의 원본데이터에 94문항 추가하였기 때문에 기존 문항에 비해 증강한 데이터셋이 너무 적었음.
    - origin train 데이터에 국어 문제를 증강하긴 했지만, 여전히 사회와 관련된 train 데이터가 많아서 큰 성능 향상이 있지 않았음.
    - 24년도 기출문제를 예시로 살펴보면 대부분의 question은 그저 “다음 글의 내용과 부합하는 것은?” 으로 전체적인 글을 읽고 문제를 푸는 case가 증강되었지만, 기존의 origin dataset에서는 빈칸에 들어갈 말이나 조금 더 지문에 관련된 단어가 포함된 질문 text로 구성되었음.
+
+#### KorQuAD
+- 데이터 설명
+    - 한국어 기계 독해(MRC) 성능을 평가하기 위한 대표적인 한국어 데이터셋.
+    - 주로 Wikipedia 문서에서 문단을 선택하고, 그에 맞는 질문과 답변을 작성하여 데이터셋을 구성.
+    - KorQuAD는 질문에 대해 문서 내의 특정 부분에서 정확한 답을 찾는 단답형 QA 구조이며, KLUE-MRC는 추론이 필요한 질문이 더 많이 포함되어 있어 일반적으로 KorQuAD보다 난이도가 높음.
+- 주제 필터링
+    - KorQuAD 데이터셋 중 [역사, 경제, 정치, 지리, 심리, 경제, 교육산업, 국제, 부동산, 사회, 생활, 책마을] 관련 주제만 남겨서 데이터 증강에 활용하고자 함.
+    - context 중복 제거 후 unique context에 대해 LLM에 주제와의 관련성 판단을 맡겨 유효 context에 해당하는 id를 가진 row 추출.
+- 선지 생성
+    - KorQuAD는 지문과 이에 대한 정답만 제공하며, 수능형 문제로 전환하기 위해 보기 선지가 필요했음.
+    - EXAONE 모델에 보기 선지 생성을 요청하여 KorQuAD 데이터를 학습 데이터로 활용하기에 적합한 형식으로 만듦.
+- 결과 분석
+    - 선지가 제대로 생성되지 않았거나, 주어진 지문에 해당하지 않는 내용의 선지가 생성된 경우 발생.
+    - 정답이 보기 선지에 포함되지 않은 경우가 다수 존재.
+    - 생성된 선지의 품질이 수능형 문제의 요구 사항을 충족하지 못함.
+    - 따라서 보기 선지를 생성하는 접근 방식은 원하는 수준의 결과를 얻지 못하여 적용하지 않기로 결정.
 
 ### 모델 1차 학습
 #### 모델링 설명
