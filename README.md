@@ -117,7 +117,7 @@ $ tmux kill-session -t (session_name)
 |:--|--|--|
 |**김동한**|Data, Model|- **TOEFL 데이터 사전학습**<br>- **pdf 데이터셋화**<br>- **모델 훈련 실험**|
 |**김성훈**|Data, Model|내용|
-|**김수아**|Data, Model|내용|
+|**김수아**|Data, Model|- **검정고시 데이터 증강**<br>- **K-Fold 도입**<br>- **앙상블**|
 |**김현욱**|Data, Model|- **MLflow 환경 구축**<br>- **모델 탐색**<br>- **Kowiki 사전 학습**<br>- **모델 훈련 실험**|
 |**송수빈**|Data, Model|내용|
 |**신수환**|Data, Model|내용|
@@ -214,6 +214,19 @@ Hugging Face에서 한국어가 가능한 LLM들에 대해 성능 평가 진행
       - 문장 길이를 기준으로, RAG를 활용하여 문제 풀이를 진행할 데이터셋과 주어진 지문 내에서 문제 풀이를 진행할 데이터셋을 구분할 수 있음
 
 ### 데이터 증강
+#### 검정고시 증강
+- 데이터 설명
+    - 원본 train 데이터셋 내 수능형 문제가 부족한 문제를 해결하기 위해 수능과 비숫한 형식의 검정고시 문항을 데이터 증강에 활용함.
+    - 2020년부터 2024년까지의  국어, 사회, 한국사, 도덕 과목 문제들에서 총 666개를 선벌하여 증강 데이터로 활용함.
+    - PyPDF2 라이브러리와 정규표현식을 사용해 텍스트를 추출한 후 제대로 변환되지 않은 부분은 확인 후 직접 수정함.
+- 실험결과
+ 
+    |-| Public Accuracy | Private Accuracy |
+    | --- | --- | --- |
+    | origin | 0.6751 | 0.6207 |
+    | 검정고시 증강 | 0.6797 | 0.6322 |
+
+   - 검정고시 데이터 증강 후 모델의 성능이 소폭 상승한 것을 보아, 검정고시 문항이 성능 향상에 긍정적인 영향을 미친 것으로 판단됨.
 #### kbs 한국어 능력시험
 - 데이터 설명
     - KBS가 국민의 국어 사용 능력을 높이고 국어문화를 발전시키는 데 기여하기 위해 시행하는 시험
@@ -334,43 +347,62 @@ Hugging Face에서 한국어가 가능한 LLM들에 대해 성능 평가 진행
 1. 증강을 통해 데이터의 양을 늘리는 것은 효과가 있었음.
 2. merge_1127에서 지문을 생성한 데이터와 원본 그대로의 데이터의 학습 결과를 비교해보면 지문을 생성한 데이터의 Accuracy가 모두 작은 것을 볼 수 있는데 이로 미루어 보아 LLM으로 생성한 지문의 품질이 좋지 않음을 짐작할 수 있음.<br>
 
-**(2) K-Fold**
+**(2) K-Fold**<br>
+
+1. Random K-Fold : 검정고시 증강 데이터를 5개의 fold로 랜덤 분할
+
+      | | Public Accuracy | Private Accuracy |
+      |---|---|---|
+      | origin | 0.6774 | 0.6184 |
+      | 5 fold + ensemble (hard voting) | 0.7143 | 0.6805 |
+      
+      - fold 안에 국어, 사회 문제가 골고루 들어가도록 처리를 하지 않았음에도 public accuracy 기준 약 4%의 성능 향상이 확인됨.
+  
+2. Stratified K-Fold : 데이터를 국어/사회 분야로 나눈 후 각 fold가 전체 데이터의 국어/사회 비율을 유지하도록 함.
+      - 국어 분야: 검정고시 및 공무원 시험 국어 과목, KLUE-MRC 문제
+      - 사회 분야: 나머지 문제들
+
+      | | Public Accuracy | Private Accuracy |
+      |---|---|---|
+      | origin | 0.7143 | 0.6805 |
+      | 4 fold + ensemble (hard voting) | 0.8065 | 0.7770 |
+      | 4 fold + ensemble (soft voting) | 0.8088 | 0.7747 |
+      
+      - Public accuracy 기준 약 9%의 성능 향상이 있었음.
+      - 두 실험 간 fold 수와 데이터셋 구성에 차이가 있으나, 성능 향상 폭을 고려할 때 데이터를 균형적으로 분할하는 것이 모델 성능 개선에 더 큰 영향을 미친 것으로 판단됨.
+
+### Ensemble
+**앙상블 기법**
+- soft voting
+    - 각 선택지 별 확률값의 평균을 계산하여 가장 높은 확률을 가진 선택지를 최종 답안으로 선정
+- soft voting ver2
+    - soft voting 결과 답안으로 선택되는 선택지의 확률 값이 점점 낮아지는 현상이 있음.
+    - 모델의 확신도가 높을수록 정답일 확률이 높아질 것이라는 가정에 따라 soft voting ver2를 제작함.
+    - 평균 확률값이 임계값 미만인 경우, 개별 모델 중 가장 높은 확신도를 보인 답안을 선택하는 방식으로 보완
+- hard voting
+    - 다수결 방식으로 가장 많은 투표를 받은 선택지를 최종 답안으로 선정
+    - 동점이 발생한 경우, 동점인 선택지들 중에서 가장 높은 확률값을 가진 것을 최종 답안으로 선택
+- hard voting ver2
+    - 기본 hard voting과 비교했을 때 동점 발생 시 처리 방식에서 차이가 있음.
+    - 동점인 선택지들에 대해 각 모델이 예측한 확률값들의 합이 가장 큰 선택지를 최종 답안으로 선택
 
 **결과 분석**
-| Model | . | . |
-| --- | --- | --- |
-| . | 0.926 | 0.9110 |
-| . | 0.929 | 0.9164 |
-| . | 0.929 | 0.9190 |
 
-### Soft Voting Ensemble
-**모델링 설명**
-- Soft Voting은 앙상블 학습에서 사용되는 기법으로, 여러 개의 분류 모델의 예측 결과를 평균하여 최종 예측을 만드는 방법
-- 각 모델이 예측한 logit을 평균하거나 가중 평균하여 최종 logit 결정
-- Valid score 기반 가중 평균
-    - 앙상블할 모델의 valid score만큼 비율로 곱하여 가중 평균
-    - e.g) model A : 0.9 / model B : 0.8 인 경우
-        
-        $$
-        \frac {A_i \times0.9+B_i\times 0.8} {0.9+0.8}
-        $$
+| | Public Accuracy | Private Accuracy |
+|---|---|---|
+| origin | 0.7143 | 0.6805 |
+| 4 fold + ensemble (hard voting) | 0.8065 | 0.7770 |
+| 4 fold + ensemble (soft voting) | 0.8088 | 0.7747 |
 
-$$
-0.8+\frac {x-x_{min}} {x_{max}-x_{min}}\times(1.2-0.8)
-$$
+| | Public Accuracy | Private Accuracy |
+|---|---|---|
+| origins | 0.7143 | 0.6805 |
+| soft voting | 0.8088 | 0.7724 |
+| soft voting ver2 | 0.8134 | 0.7747 |
 
-
-**결과 분석**
-- Data Aaugmentation 진행한 결과에 따른 4가지 version의 train data와 Model exploration&Modeling을 거쳐 선정된 model에 다양한 조합으로 실험하여 최적의 성능 도출
-- **각 기법마다 best case에 대해서 비교해본 결과 min-max 평균을 취한 case가 가장 높은 92.98의 public pearson 값을 가지는 것을 확인하고 이를 최종 리더보드에 제출**
-
-| 모델 | 활용 기법 | Validation Pearson | Min-Max 정규화 가중 평균 |
-| --- | --- | --- | --- |
-| deliciouscat/kf-deberta-base-cross-sts | raw + Contrastive Learning | 0.930 | 1.111 |
-| deliciouscat/kf-deberta-base-cross-sts | raw + Cleaning | 0.930 | 1.111 |
-| sorryhyun/sentence-embedding-klue-large | Augmentation v2 | 0.923 | 0.800 |
-| snunlp/KR-ELECTRA-discriminator | Augmentation v2 | 0.932 | 1.200 |
-| snunlp/KR-ELECTRA-discriminator | Augmentation v3 | 0.930 | 1.111 |
+- 첫번째 실험에서 public accuracy 기준 soft voting이 hard voting보다 결과가 좋음을 확인
+- 두번째 실험에서 soft voting ver2가 성능이 좋았음을 확인
+- 실험결과에 따라 soft voting ver2의 성능이 가장 좋을 것이라 가정하고, public accuracy가 높았던 여러 결과들을 soft voting ver2로 앙상블을 수행함.
 
 ## 6. 리더보드 결과
 
