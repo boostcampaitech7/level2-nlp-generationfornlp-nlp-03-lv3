@@ -174,81 +174,61 @@ Hugging Face에서 한국어가 가능한 LLM들에 대해 성능 평가 진행
 - 
 
 ### EDA
-- 대회 데이터 구성
-    - 수능형 문제
-        - 수능 국어, 사회 영역(윤리, 정치, 사회)
-    - KMMLU
-        - Korean History
-    - MMMLU
-        - HighSchool 데이터 중 역사, 경제, 정치, 지리, 심리
-    - KLUE-MRC
-        - 경제, 교육산업, 국제, 부동산, 사회, 생활, 책마을
-- Source 별 분포
-  
-   |  | Count | Ratio |
-   | --- | --- | --- |
-   | 수능형 문제 | 0 | 0.000000 |
-   | KMMLU | 72 | 0.035468 |
-   | MMMLU | 719 | 0.354187 |
-   | KLUE-MRC | 1239 | 0.610345 |
+#### 대회 데이터 구성
+- 수능형 문제
+      - 수능 국어, 사회 영역(윤리, 정치, 사회)
+- KMMLU
+      - Korean History
+- MMMLU
+      - HighSchool 데이터 중 역사, 경제, 정치, 지리, 심리
+- KLUE-MRC
+      - 경제, 교육산업, 국제, 부동산, 사회, 생활, 책마을
+#### Source 별 분포
+|  | Count | Ratio |
+| --- | --- | --- |
+| 수능형 문제 | 0 | 0.000000 |
+| KMMLU | 72 | 0.035468 |
+| MMMLU | 719 | 0.354187 |
+| KLUE-MRC | 1239 | 0.610345 |
       
-- Subject 별 분포
-
-  |  | Count | Ratio |
-  | --- | --- | --- |
-  | korean history | 72 | 0.035468 |
-  | world history | 192 | 0.094581 |
-  | us history | 139 | 0.068473 |
-  | european history | 118 | 0.058128 |
-  | psychology | 140 | 0.068966 |
-  | macroeconomics | 78 | 0.038424 |
-  | microeconomics | 36 | 0.017734 |
-  | government | 9 | 0.004433 |
-  | geography | 7 | 0.003448 |
-  | KLUE-MRC | 1239 | 0.610345 |
+#### Subject 별 분포
+|  | Count | Ratio |
+| --- | --- | --- |
+| korean history | 72 | 0.035468 |
+| world history | 192 | 0.094581 |
+| us history | 139 | 0.068473 |
+| european history | 118 | 0.058128 |
+| psychology | 140 | 0.068966 |
+| macroeconomics | 78 | 0.038424 |
+| microeconomics | 36 | 0.017734 |
+| government | 9 | 0.004433 |
+| geography | 7 | 0.003448 |
+| KLUE-MRC | 1239 | 0.610345 |
         
-- 문장 길이 분포
+#### 문장 길이 분포
+|  | KMMLU | MMMLU | KLUE-MRC |
+| --- | --- | --- | --- |
+| count | 72 | 719 | 1239 |
+| mean | 149.75 | 337.28 | 1000.82 |
+| std | 65.20 | 261.87 | 357.90 |
+| min | 23.00 | 15.00 | 503.00 |
+| 25% | 103.00 | 80.50 | 711.50 |
+| 50% | 141.50 | 329.00 | 909.00 |
+| 75% | 190.25 | 520.50 | 1252.00 |
+| max | 353.00 | 1292.00 | 2017.00 |
   
-  |  | KMMLU | MMMLU | KLUE-MRC |
-  | --- | --- | --- | --- |
-  | count | 72 | 719 | 1239 |
-  | mean | 149.75 | 337.28 | 1000.82 |
-  | std | 65.20 | 261.87 | 357.90 |
-  | min | 23.00 | 15.00 | 503.00 |
-  | 25% | 103.00 | 80.50 | 711.50 |
-  | 50% | 141.50 | 329.00 | 909.00 |
-  | 75% | 190.25 | 520.50 | 1252.00 |
-  | max | 353.00 | 1292.00 | 2017.00 |
-  
-- 데이터 분석 인사이트
-    - 학습 데이터의 source는 KMMLU, MMMLU, KLUE-MRC로, 학습 데이터에는 수능형 문제가 포함되어 있지 않음
-        - 주어진 학습 데이터만으로는국어 과목의 문제풀이 방식을 충분히 학습하지 못할 가능성이 높음
-        - 수능형 문제가 테스트 데이터로 주어졌을 경우, 모델이 문제 해결에 어려움을 겪을 가능성이 큼
-        - 따라서 수능형 문제를 증강하여 모델이 이 유형의 문제를 잘 학습하도록 설계하는 것이 중요하다고 판단
-    - 학습 데이터의 source별 분포를 보면 KLUE-MRC의 비율이 가장 높으며, KLUE-MRC 데이터의 source는 Wikipedia의 비중이 높음
-        - KLUE-MRC와 유사한 데이터를 증강하면 모델 성능 개선에 기여할 가능성이 높음
-        - KorQuAD 데이터 역시 Wikipedia를 바탕으로 만들어진 QA 데이터셋이기 때문에 학습 데이터로 활용하기 좋다고 판단됨
-    - 학습 데이터의 subject별 분포를 보면 과목별로 서로 같은 비율을 갖지 않음
-        - 외부 데이터셋으로 학습 데이터 증강할 때, 학습 데이터 내 과목별 데이터 분포를 해치지 않도록 테이블 상의 비율을 참고하면서 증강해야 함
-    - 학습 데이터의 paragraph 문장 길이 분포를 보면 source별로 확연한 차이를 보임
-        - 문장 길이를 기준으로, RAG를 활용하여 문제 풀이를 진행할 데이터셋과 주어진 지문 내에서 문제 풀이를 진행할 데이터셋을 구분할 수 있음
-
-### 데이터 증강
-|**Version**|**Abstract**|**num**|
-|:--:|--|:--:|
-|**V1_Downsampling**|label 0.0 데이터 1000개 downsampling|8,324|
-|**V2_augmentation_biased**|`AugmentationV1` + `BERT-Token Insertion`|9,994|
-|**V3_augmentation_uniform**|`AugmentationV2` + `Adverb Augmentation` + `Sentence Swap` + `BERT-Token Insertion`|15,541|
-|**V4_augmentation_spellcheck**|`AugmentationV2` + `hanspell` + `Sentence Swap` |17,313|
-
-
-### 증강 데이터 버전 설명
-|**Version**|**Description**|
-|:--:|--|
-|**V1_Downsampling** |Downsampling된 1000개의 문장으로 V2에서 (4.0, 5.0] label의 data augmentation을 진행할 것이기 때문에, label이 0.0인 데이터셋에서 문장 내 token 수가 3개 이상이면서, K-TACC 증강 방법 중 random_masking_insertion을 진행했을 때 증강이 되는 문장을 선별했습니다. sentence_1과 sentence_2 모두 증강된 index만 고려하면서, sentence_1을 기준으로 유사도가 높은 상위 1000개의 index를 선별했습니다. 문장 간 유사도가 고려되지 못한 sentence_2 데이터셋에 대해서는 추후 data filtering을 거쳤습니다.|
-|**V2_augmentation_biassed**|V1에서 Downsampling된 1000개 데이터셋을 증강한 데이터셋 중에서도 label이 5.0인 데이터셋은 큰 차이가 없어야 한다고 판단하여, 불용어를 제거하면 같은 문장인 데이터를 label 5.0에 할당했습니다. label이 (4.0, 5.0)인 데이터셋은 라벨 간의 비율을 직접 조정하면서, 유사도가 높은 순서대로 개수에 맞게 할당했습니다.|
-|**V3_augmentation_uniform**| label 분포를 균형있게 맞추어 전체적인 데이터 분포를 고르게 하기 위해 **라벨별 증강 비율을 조정**하여 총 3단계에 걸쳐 증강했고 매 단계마다 데이터의 개수가 적은 label들을 집중적으로 증강했습니다. <br> 1단계로 label이 `0.5, 1.5, 1.6, 2.2, 2.4, 2.5, 3.5` 데이터에 대해 Adverb Augmentation 수행했습니다. 2단계로 label이 `0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.8, 2.6, 2.8, 3, 3.2, 3.4, 3.5` 데이터에 대해 Sentence Swap 수행하였습니다. 3단계로 `1.5, 2.5, 3.5` 데이터에 대해 random_masking_insertion을 수행하였으며 추가로 `1.5, 2.5` 데이터 중 Masking Insertion한 증강 데이터에 대해 Sentence Swap을 수행했습니다.|
-|**V4_augmentation_spellcheck**|label이 0.0인 데이터셋 중 맞춤법 교정 라이브러리 hanspell이 sentence_1과 sentence_2 모두에 적용된 index 776개를 뽑고, 증강된 데이터셋들을 label 4.8에 493개, label 5.0에 1059개 할당하였습니다. label이 (0.0, 4.4]인 데이터셋은 sentence swapping을 진행하였습니다. V2의 데이터셋 중 500개를 뽑아와 label 4.6에 450개, 4.5에 50개 할당하여 라벨 간 비율이 비숫해지도록 조정하였습니다.|
+#### 데이터 분석 인사이트
+1. 학습 데이터의 source는 KMMLU, MMMLU, KLUE-MRC로, 학습 데이터에는 수능형 문제가 포함되어 있지 않음
+      - 주어진 학습 데이터만으로는국어 과목의 문제풀이 방식을 충분히 학습하지 못할 가능성이 높음
+      - 수능형 문제가 테스트 데이터로 주어졌을 경우, 모델이 문제 해결에 어려움을 겪을 가능성이 큼
+      - 따라서 수능형 문제를 증강하여 모델이 이 유형의 문제를 잘 학습하도록 설계하는 것이 중요하다고 판단
+2. 학습 데이터의 source별 분포를 보면 KLUE-MRC의 비율이 가장 높으며, KLUE-MRC 데이터의 source는 Wikipedia의 비중이 높음
+      - KLUE-MRC와 유사한 데이터를 증강하면 모델 성능 개선에 기여할 가능성이 높음
+      - KorQuAD 데이터 역시 Wikipedia를 바탕으로 만들어진 QA 데이터셋이기 때문에 학습 데이터로 활용하기 좋다고 판단됨
+3. 학습 데이터의 subject별 분포를 보면 과목별로 서로 같은 비율을 갖지 않음
+      - 외부 데이터셋으로 학습 데이터 증강할 때, 학습 데이터 내 과목별 데이터 분포를 해치지 않도록 테이블 상의 비율을 참고하면서 증강해야 함
+4. 학습 데이터의 paragraph 문장 길이 분포를 보면 source별로 확연한 차이를 보임
+      - 문장 길이를 기준으로, RAG를 활용하여 문제 풀이를 진행할 데이터셋과 주어진 지문 내에서 문제 풀이를 진행할 데이터셋을 구분할 수 있음
 
 
 ### 모델 Fine-Tuning
@@ -257,20 +237,35 @@ Hugging Face에서 한국어가 가능한 LLM들에 대해 성능 평가 진행
 - (1) 증강 학습데이터로 학습
 - (2) K-Fold
 
-**증강 데이터로 학습**
+**(1) 증강 데이터로 학습**
+| Data (1차/2차) | Public Accuracy | Private Accuracy |
+| --- | --- | --- |
+| curr_sat | 0.7765 | 0.7632 |
+| merge_1122 | 0.7811 | 0.7862 |
+| merge_1125 | 0.7857 | 0.7586 |
+| TOEFL / merge_1125 | 0.7880 | 0.7793 |
+| TOEFL+SAT / merge_1127 | 0.7972 | 0.7770 |
+| TOEFL+SAT / merge_1127(지문생성) | 0.7949 | 0.7701 |
 
+curr_sat : 검정고시 + KBS한국어능력시험 + PSAT<br>
+merge_1122 : 검정고시 + KBS한국어능력시험 + PSAT + 공무원 기출문제은행('국어', '사회', '한국사', '경제학', '교육학')<br>
+merge_1125 : 검정고시 + KBS한국어능력시험 + PSAT + 공무원 기출문제은행('국어', '사회', '한국사', '사회복지학')<br>
+merge_1127 : 검정고시 + KBS한국어능력시험 + PSAT + 공무원 기출문제은행('국어', '사회', '한국사', '경제학', '교육학', ‘사회복지학’)<br>
+merge_1127(지문생성) : 검정고시 + KBS한국어능력시험 + PSAT + 공무원 기출문제은행('국어', '사회', '한국사', '경제학', '교육학', ‘사회복지학’) + 공무원 기출문제은행에서 지문이 없는 데이터의 지문을 LLM으로 생성<br>
 
-**결과 분석**
+**결과 분석**<br>
+1. 증강을 통해 데이터의 양을 늘리는 것은 효과가 있었음.
+2. TOEFL로 1차 학습을 진행하고 merge_1125로 2차 학습했을 때와 바로 merge_1125로 학습했을 때를 비교해보면, TOEFL로 1차 학습을 진행했을 때 Public, Private Accuracy 모두 상승하여 1차 학습이 효과가 있음을 확인할 수 있음.
+3. merge_1127에서 지문을 생성한 데이터와 원본 그대로의 데이터의 학습 결과를 비교해보면 지문을 생성한 데이터의 Accuracy가 모두 작은 것을 볼 수 있는데 이로 미루어 보아 LLM으로 생성한 지문의 품질이 좋지 않음을 짐작할 수 있음.
 
-
-**K-Fold**
+**(2) K-Fold**
 
 **결과 분석**
 | Model | Validation Pearson | Public Pearson |
 | --- | --- | --- |
-| deliciouscat/kf-deberta-base-cross-sts | 0.926 | 0.9110 |
-| deliciouscat/kf-deberta-base-cross-sts + GNN | 0.929 | 0.9164 |
-| deliciouscat/kf-deberta-base-cross-sts + CL | 0.929 | 0.9190 |
+| . | 0.926 | 0.9110 |
+| . | 0.929 | 0.9164 |
+| . | 0.929 | 0.9190 |
 
 ### Soft Voting Ensemble
 **모델링 설명**
