@@ -153,14 +153,13 @@ Hugging Face에서 한국어가 가능한 LLM들에 대해 성능 평가 진행
 
 최종적으로 [unsloth/Qwen2.5-32B-Instruct-bnb-4bit](https://huggingface.co/unsloth/Qwen2.5-32B-Instruct-bnb-4bit) 를 베이스라인 모델로 선정.
 
-| Model | Valid Accuracy | Public Accuracy |
+| Model | Public Accuracy | Private Accuracy |
 | --- | --- | --- |
-| [yanolja/EEVE-Korean-Instruct-10.8B-v1.0](https://huggingface.co/yanolja/EEVE-Korean-Instruct-10.8B-v1.0) | 0.2958 | 0.6705 |
-| [yusikyang/mistral-7b-kowiki-10p-instruct-16bit](https://huggingface.co/yusikyang/mistral-7b-kowiki-10p-instruct-16bit) | 0.3908 | X |
-| [unsloth/gemma-2-27b-it-bnb-4bit](https://huggingface.co/unsloth/gemma-2-27b-it-bnb-4bit) | 0.4501 | 0.6083 |
-| [unsloth/Qwen2.5-32B-Instruct-bnb-4bit](https://huggingface.co/unsloth/Qwen2.5-32B-Instruct-bnb-4bit) | 0.5884 | **0.7765** |
-| [cognitivecomputations/dolphin-2.9.3-mistral-nemo-12b](https://huggingface.co/cognitivecomputations/dolphin-2.9.3-mistral-nemo-12b) | 0.3054 | 0.4240 |
-| [hungun/Qwen2.5-7B-Instruct-kowiki-qa](https://huggingface.co/hungun/Qwen2.5-7B-Instruct-kowiki-qa) | 0.3408 | 0.7396 |
+| [yanolja/EEVE-Korean-Instruct-10.8B-v1.0](https://huggingface.co/yanolja/EEVE-Korean-Instruct-10.8B-v1.0) | 0.6705 | 0.6391 |
+| [unsloth/gemma-2-27b-it-bnb-4bit](https://huggingface.co/unsloth/gemma-2-27b-it-bnb-4bit) | 0.6083 | 0.5816 |
+| [unsloth/Qwen2.5-32B-Instruct-bnb-4bit](https://huggingface.co/unsloth/Qwen2.5-32B-Instruct-bnb-4bit) | **0.7765** | 0.7448 |
+| [cognitivecomputations/dolphin-2.9.3-mistral-nemo-12b](https://huggingface.co/cognitivecomputations/dolphin-2.9.3-mistral-nemo-12b) | 0.4240 | 0.3908 |
+| [hungun/Qwen2.5-7B-Instruct-kowiki-qa](https://huggingface.co/hungun/Qwen2.5-7B-Instruct-kowiki-qa) | 0.7396 | 0.7126 |
 
 
 ### 모델 1차 학습
@@ -261,7 +260,7 @@ Hugging Face에서 한국어가 가능한 LLM들에 대해 성능 평가 진행
 **(2) K-Fold**
 
 **결과 분석**
-| Model | Validation Pearson | Public Pearson |
+| Model | . | . |
 | --- | --- | --- |
 | . | 0.926 | 0.9110 |
 | . | 0.929 | 0.9164 |
