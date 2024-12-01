@@ -126,11 +126,11 @@ $ tmux kill-session -t (session_name)
 ## 5. 프로젝트 진행
 | Task | **Task Description** |
 | --- | --- |
-| **EDA** | 데이터의 특성을 살펴보기 위해 label별 분포 등 시각화 및 분석 |
-| **Augmentation** | 데이터셋의 불균형성을 해소하기 위해 다양한 방법으로 데이터 증강 수행 |
-| **Model Exploration** | 데이터셋과 STS  task를 수행하기 적합한 pre-trained model 선정 |
-| Second-stream with GNN | 단어들 사이의 유의어 관계를 모델링하기 위해 Graph Neural Networks (GNN)을 second-stream으로 NLP 모델에 통합하고 성능 평가 / 최종 제출 때는 사용 x |
-| **Soft Voting Ensemble** | 증강된 데이터셋으로 학습한 다양한 model의 예측확률을 평균하여 여러 모델의 강점을 결합해 성능 향상 |
+| **EDA** | 데이터의 특성을 살펴보기 위해 데이터 시각화 및 분석 |
+| **Augmentation** | 데이터셋 크기를 키우기 위해 데이터 증강 수행 |
+| **Model Exploration** | 한국어 수능 문제 풀이에 적합한 풍부한 배경 지식을 갖춘 pre-trained model 선정 |
+| **Model Train** | 증강 데이터 및 K-Fold 알고리즘을 사용하여 모델 훈련 |
+| **Soft Voting Ensemble** | 증강된 데이터셋과 하이퍼 파라미터 튜닝으로 훈련한 모델의 추론 결과들을 결합해 성능 향상 |
 
 
 ### 사용한 데이터셋
