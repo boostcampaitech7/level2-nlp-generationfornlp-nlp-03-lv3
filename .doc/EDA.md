@@ -9,11 +9,11 @@
     - HighSchool 데이터 중 역사, 경제, 정치, 지리, 심리
 - KLUE-MRC
     - 경제, 교육산업, 국제, 부동산, 사회, 생활, 책마을
- - **학습 데이터**
-    - KMMLU / MMMLU(Ko) / KLUE-MRC 데이터 중 2031개
-- **평가 데이터**
-    - 수능형 문제 + KMMLU / MMMLU(Ko) / KLUE-MRC 데이터 총 869개
-    - 정답은 빈 문자열로 구성.
+### **학습 데이터**
+- KMMLU / MMMLU(Ko) / KLUE-MRC 데이터 중 2031개
+### **평가 데이터**
+- 수능형 문제 + KMMLU / MMMLU(Ko) / KLUE-MRC 데이터 총 869개
+- 정답은 빈 문자열로 구성.
 - 전체 **`test.csv`** 파일을 **`public.csv`**: 434개, **`private.csv`**: 435개로 랜덤하게 나누어 구성.
 
 ## Source 별 분포
