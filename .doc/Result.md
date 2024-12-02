@@ -1,5 +1,5 @@
 ### K-Fold<br>
-1. Random K-Fold : 검정고시 증강 데이터를 5개의 fold로 랜덤 분할
+1. **Random K-Fold** : 검정고시 증강 데이터를 5개의 fold로 랜덤 분할
       - fold 안에 국어, 사회 문제가 골고루 들어가도록 처리를 하지 않았음에도 public accuracy 기준 약 4%의 성능 향상이 확인됨.
         
       | | Public Accuracy | Private Accuracy |
@@ -7,7 +7,7 @@
       | origin | 0.6774 | 0.6184 |
       | 5 fold + ensemble (hard voting) | 0.7143 | 0.6805 |
   
-2. Stratified K-Fold : 데이터를 국어/사회 분야로 나눈 후 각 fold가 전체 데이터의 국어/사회 비율을 유지하도록 함.
+2. **Stratified K-Fold** : 데이터를 국어/사회 분야로 나눈 후 각 fold가 전체 데이터의 국어/사회 비율을 유지하도록 함.
       - fold 구성
         - 국어 분야: 검정고시 및 공무원 시험 국어 과목, KLUE-MRC 문제
         - 사회 분야: 나머지 문제들
