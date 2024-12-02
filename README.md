@@ -115,11 +115,11 @@ $ tmux kill-session -t (session_name)
 |**Member**|**Team**|**Role**|
 |:--|--|--|
 |**김동한**|Data, Model|- **TOEFL+SAT 데이터 1차 Fine-Tuning**<br>- **PSAT기출문제 데이터 증강**<br>- **모델 훈련 실험**|
-|**김성훈**|Data, Model|내용|
+|**김성훈**|Data, Model|- **베이스라인 코드 모듈화**<br>- **모델 탐색, 모델 경량화**<br>- **공무원시험기출문제 데이터 증강**<br>- **모델 훈련 및 실험** |
 |**김수아**|Data, Model|- **검정고시 데이터 증강**<br>- **K-Fold 도입**<br>- **앙상블**|
 |**김현욱**|Data, Model|- **MLflow 환경 구축**<br>- **모델 탐색**<br>- **Kowiki 사전 학습**<br>- **모델 훈련 실험**|
 |**송수빈**|Data, Model|- **EDA**<br>- **데이터 증강(kbs 한국어능력시험, SAT history, KorQuAD)**<br>- **SAT 데이터 사전학습**<br>- **모델 훈련 실험**|
-|**신수환**|Data, Model|내용|
+|**신수환**|Data, Model| - **모델 사전 탐색**<br>- **Kowiki 필터링** |
 <br>
 
 ## 5. 프로젝트 진행
