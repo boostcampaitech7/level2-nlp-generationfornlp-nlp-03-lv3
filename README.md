@@ -129,7 +129,7 @@ $ tmux kill-session -t (session_name)
 | [**Model Exploration**](https://github.com/boostcampaitech7/level2-nlp-generationfornlp-nlp-03-lv3/blob/main/.doc/Model_Experiment.md) | 한국어 수능 문제 풀이에 적합한 pre-trained model 선정 |
 | [**Fine-Tuning_1**](https://github.com/boostcampaitech7/level2-nlp-generationfornlp-nlp-03-lv3/blob/main/.doc/Fine-Tuning_1.md) | 모델의 문제 풀이 능력을 향상시키기 위한 1차 fine-tuning |
 | [**Fine-Tuning_2**](https://github.com/boostcampaitech7/level2-nlp-generationfornlp-nlp-03-lv3/blob/main/.doc/Fine-Tuning_2.md) | 모델의 문제 풀이 능력을 향상시키기 위한 2차 fine-tuning |
-| [**Post Processing**](https://github.com/boostcampaitech7/level2-nlp-generationfornlp-nlp-03-lv3/blob/main/.doc/Result.md) | K-Fold, 앙상블 알고리즘을 사용해 후처리 |
+| [**Post Processing & Result**](https://github.com/boostcampaitech7/level2-nlp-generationfornlp-nlp-03-lv3/blob/main/.doc/Result.md) | K-Fold, 앙상블 알고리즘을 사용해 후처리 & 실험 결과 |
 
 ## 6. 제출 결과
 - Public 최고 성적 : (0.8249, 0.7678)
