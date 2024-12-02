@@ -127,10 +127,10 @@ $ tmux kill-session -t (session_name)
 | Task | **Task Description** |
 | --- | --- |
 | **EDA** | 데이터의 특성을 살펴보기 위해 데이터 시각화 및 분석 |
-| **Augmentation** | 데이터셋 크기를 키우기 위해 데이터 증강 수행 |
-| **Model Exploration** | 한국어 수능 문제 풀이에 적합한 풍부한 배경 지식을 갖춘 pre-trained model 선정 |
-| **Model Train** | 증강 데이터 및 K-Fold 알고리즘을 사용하여 모델 훈련 |
-| **Soft Voting Ensemble** | 증강된 데이터셋과 하이퍼 파라미터 튜닝으로 훈련한 모델의 추론 결과들을 결합해 성능 향상 |
+| **Model Exploration** | 한국어 수능 문제 풀이에 적합한 pre-trained model 선정 |
+| **Fine-Tuning_1** | 모델의 문제 풀이 능력을 향상시키기 위한 1차 fine-tuning |
+| **Fine-Tuning_2** | 모델의 문제 풀이 능력을 향상시키기 위한 2차 fine-tuning |
+| **Post Processing & Result** | K-Fold, 앙상블 알고리즘을 사용해 후처리 |
 
 
 ### 사용한 데이터셋
