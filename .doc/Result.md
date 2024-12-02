@@ -88,11 +88,3 @@
 | TOEFL + SAT + Kowiki | 공무원기출시험은행[국어, 사회, 한국사, 경제, 교육학, 사회복지학] | 32 | 64 |
 | TOEFL + SAT | 검정고시 | 32 | 64 |
 | TOEFL + SAT + Kowiki | KBS한국어능력시험, SAT world | 32 | 64 |
-
-# 제출 결과
-- Public 최고 성적 : (0.8249, 0.7678)
-![image](https://github.com/user-attachments/assets/ef163889-201e-4868-8aa3-4ae34773c191)
-
-        
-- Private 최고 성적 : (0.7811, 0.7862)
-![image2](https://github.com/user-attachments/assets/e2075550-7944-4ba5-b2f8-c66a47c5c9af)
