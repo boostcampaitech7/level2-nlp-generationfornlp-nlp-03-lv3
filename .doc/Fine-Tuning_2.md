@@ -43,39 +43,84 @@
 - 수능형 문제와 비슷한 문제만을 골라 증강한 것이 도움이 되었을 것으로 판단.
 <br>
 
-# SAT Questions and Answers for LLM
+# [SAT Questions and Answers for LLM](https://www.kaggle.com/datasets/trainingdatapro/sat-history-questions-and-answers)
 ### 데이터 설명
-- 원본 train 데이터셋 내 수능형 문제가 부족한 문제를 해결하기 위해 수능과 비슷한 형식의 검정고시 문항을 데이터 증강에 활용.
-- 2020년부터 2024년까지의 국어, 사회, 한국사, 도덕 과목 문제들에서 총 666개를 선별하여 증강 데이터로 활용.
-
+  - 미국수능 데이터
+  - MMMLU 데이터의 비중이 높은 상위 두 과목으로, 데이터 증강 시 성능 개선에 도움이 될 것이라 판단
 ### 수집 방안
-- PyPDF2 라이브러리와 정규표현식을 사용해 텍스트를 추출한 후 제대로 변환되지 않은 부분은 확인 후 직접 수정.
+  - DeepL API활용한 번역
+    - 영어로 된 기존 데이터 셋을 한국어로 번역
+  - LLM([LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct](https://huggingface.co/LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct)) 을 활용한 지문 생성
+    - 한국어 이해 및 생성능력이 뛰어나며 자연스러운 문맥 처리가 가능한 모델을 선정하여 지문을 생성함
+    - 아래의 프롬프트로 데이터 생성
+      ```
+      prompt = f"""
+      질문: {question}
+      선택지: {choices}
+      정답: {answer}
+
+      위의 질문, 선택지, 정답을 바탕으로 적절한 지문을 생성해주세요. 지문은 질문에 답할 수 있는 충분한 정보를 포함해야 하며, 정답을 직접적으로 언급하지 않도록 주의해주세요.
+      """
+
+      messages = [
+          {
+              "role": "system",
+              "content": "당신은 역사 교과서 작가입니다. 주어진 질문, 선택지, 정답을 바탕으로 적절한 지문을 생성해야 합니다.",
+          },
+          {
+              "role": "user",
+              "content": prompt,
+          },
+      ]
+      ```
+    - 생성된 데이터 예시
+      ![image](https://github.com/user-attachments/assets/dd46e05b-8a0d-4de3-b3be-2d27aca81d38)
 
 ### 실험 결과
-|  | Public Accuracy |  Private Accuracy |
-| --- | --- | --- |
-| origin | 0.6751 | 0.6207 |
-| 검정고시 증강 | 0.6797 | 0.6322 |
-
-### 결과 분석 & 인사이트
-<br>
-
-# 국가공무원시험 5급 (행정) 언어논리 데이터(PSAT)
+  |  | Public Accuracy |  Private Accuracy |
+  | --- | --- | --- |
+  | origin | 0.6751 | 0.6207 |
+  | KBS(korean) auged | 0.6843 | 0.6253 |
+  | SAT(World History) auged with no paragraph | 0.6866 | **0.6322** |
+  | SAT(World History) auged with paragraph | **0.6889 (최대 acc)** 0.6659 (최소 loss) | 0.6230 (최대 acc) 0.6276 (최소 loss) |
+  | SAT(World History, U.S. History) auged with paragraph | 0.6636 | 0.6230 |
+### 결과 분석 및 인사이트
+  - World History (272문항)
+    - 272문항을 합쳤을 때 KLUE-MRC 데이터의 개수를 넘지 않으면서, LLM이 생성한 세계사 지문을 학습함으로써 성능 향상이 있었던 것으로 판단.
+  - U.S. History (1,107문항)
+    - World History 과목보다 적은 비중을 차지함에도 불구하고 5배 가량의 데이터를 증강했으며, 증강 후 U.S. History 과목의 총 개수가 KLUE-MRC 데이터의 개수를 넘겨버림으로써 성능 감소가 있었던 것으로 판단.
+    
+# [국가공무원 시험 5급 (행정) 언어논리 데이터(PSAT)](https://www.gosi.kr/cop/bbs/selectGosiQnaList.do;jsessionid=O2Qqrjgmhd6g93YAF3sOEfcL.node_cybergosiwas21)
 ### 데이터 설명
-- 원본 train 데이터셋 내 수능형 문제가 부족한 문제를 해결하기 위해 수능과 비슷한 형식의 검정고시 문항을 데이터 증강에 활용.
-- 2020년부터 2024년까지의 국어, 사회, 한국사, 도덕 과목 문제들에서 총 666개를 선별하여 증강 데이터로 활용.
-
+  - PSAT에 수능 국어 문제와 동일하게 지문을 읽고 이해하여 올바른 선지를 고르는 유형의 문제들이 있어 증강 데이터로 사용하기로 결정.
 ### 수집 방안
-- PyPDF2 라이브러리와 정규표현식을 사용해 텍스트를 추출한 후 제대로 변환되지 않은 부분은 확인 후 직접 수정.
+  - 공개된 3개년 기출문제(22, 23, 24) 데이터에 대해 증강.
+    <table style="width:100%;">
+      <tr>
+        <td style="width:50%; text-align:center;">
+          <img src="https://github.com/user-attachments/assets/8d79d245-a8a4-4222-bda6-b63edfb8851a" style="max-width:100%; height:auto;">
+        </td>
+        <td style="width:50%; text-align:center;">
+          <img src="https://github.com/user-attachments/assets/6e54e2bd-8140-4d0a-90f9-8c4172656548" style="max-width:100%; height:auto;">
+        </td>
+      </tr>
+    </table>
 
+    - PDF Miner 활용해서 위와 같은 시험지를 데이터셋화.
+    - answers : PDFplumber 활용해서 정답지를 표로 인식해 DataFrame으로 저장한 후 동일한 문번 index에 할당.
+  - 생성된 데이터 예시
+    ![image](https://github.com/user-attachments/assets/98d4448f-7a12-468e-8b3f-2083a3189ec3)
+ 
 ### 실험 결과
-|  | Public Accuracy |  Private Accuracy |
+|  | Public Accuracy | Private Accuracy |
 | --- | --- | --- |
-| origin | 0.6751 | 0.6207 |
-| 검정고시 증강 | 0.6797 | 0.6322 |
+| origin | 0.6751 | 0.6299 |
+| PSAT(22, 23,24) auged | 0.6705 | 0.6230 |
 
-### 결과 분석 & 인사이트
-<br>
+### 결과 분석 및 인사이트
+  - PSAT (행정) 언어논리 데이터 (94문항)
+    - 2,030개의 원본데이터에서 94문항만 추가하였기 때문에, 기존 문항에 비해 증강한 데이터셋의 양이 너무 적어 큰 영향을 주지 못한것으로 보임.
+ 
 
 # 공무원시험기출문제
 ### 데이터 설명
