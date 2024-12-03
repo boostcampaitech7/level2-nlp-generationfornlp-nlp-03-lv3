@@ -6,7 +6,7 @@
 2. [Installation and Quick Start](#2-installation-and-quick-start)
 3. [팀원 소개](#3-팀원-소개)
 4. [프로젝트 진행](#4-프로젝트-진행)
-
+5. [제출 결과](#5-제출-결과)
 ## 1. 프로젝트 소개
 (1) 주제 및 목표
 - 부스트캠프 AI Tech NLP 트랙 level 2 대회
@@ -109,7 +109,7 @@ $ tmux kill-session -t (session_name)
 | [**Fine-tuning_2**](https://github.com/boostcampaitech7/level2-nlp-generationfornlp-nlp-03-lv3/blob/main/.doc/Fine-Tuning_2.md) | 모델의 문제 풀이 능력을 향상시키기 위한 2차 fine-tuning |
 | [**Post Processing & Result**](https://github.com/boostcampaitech7/level2-nlp-generationfornlp-nlp-03-lv3/blob/main/.doc/Post_Processing.md) | K-Fold, 앙상블 알고리즘을 사용해 후처리 & 실험 결과 |
 
-## 6. 제출 결과
+## 5. 제출 결과
 - Public 최고 성적 : (0.8249, 0.7678)
 ![image](https://github.com/user-attachments/assets/ef163889-201e-4868-8aa3-4ae34773c191)
 
