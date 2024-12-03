@@ -17,6 +17,11 @@
 ### 증강한 데이터셋 개수
 -  684문항 증강
 
+### 코드 실행 방안
+- `data_aug/1_toefl` 폴더 안 코드 실행
+- 관련 데이터는 `resources/aug/toefl` 확인
+
+
 # [SAT](https://www.kaggle.com/datasets/trainingdatapro/sat-history-questions-and-answers)
 ### 데이터 구조화
 - 원본 데이터
@@ -32,6 +37,10 @@
 
 ### 증강한 데이터셋 개수
 - 1,379 문항 증강(272-세계사, 1,107-미국역사)
+
+### 코드 실행 방안
+- `data_aug/1_sat` 폴더 안 코드 순차적으로 실행
+- 관련 데이터는 `resources/aug/sat` 확인
 
 
 # [Kowiki](https://huggingface.co/datasets/beomi/kowikitext-qa-ref-detail-preview)
@@ -56,3 +65,6 @@
 
 ### 증강한 데이터셋 개수
 - 675문항 증강
+
+### 코드 실행 방안
+- `data_aug/1_kowiki` 폴더 안 코드 실행

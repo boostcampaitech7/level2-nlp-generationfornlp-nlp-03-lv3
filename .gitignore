@@ -10,8 +10,8 @@ resources/selected_kowikitext/
 .etc/
 .idea/
 .DS_Store
-*.pdf
-*.jpg
+# *.pdf
+# *.jpg
 *.zip
 *.pkl
 *.pt
@@ -22,7 +22,7 @@ resources/selected_kowikitext/
 *.json
 *.bin
 *.pickle
-*.csv
+# *.csv
 
 
 # Byte-compiled / optimized / DLL files
