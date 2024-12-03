@@ -119,7 +119,9 @@ class BM25SModel:
         tokenized_text = []
         for result in tqdm(results, total=len(text)):
             morph_question_form = [
-                x.form for x in result if x.tag in ["NNG", "NNP", "NNB", "NR", "NP", "SN", "SH", "SL", "VV", "VA", "XR"]
+                x.form
+                for x in result
+                if x.tag in ["NNG", "NNP", "NNB", "NR", "NP", "SN", "SH", "SL", "VV", "VA", "XR"]
             ]
             try:
                 morph_question_form_hf = []

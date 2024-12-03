@@ -14,15 +14,7 @@ class ModelArguments:
 
     model_name_or_path: str = field(
         default="unsloth/Qwen2.5-32B-Instruct-bnb-4bit",
-        metadata={
-            "help": "Path to pretrained model or model identifier from huggingface.co/models"
-            "baseline : beomi/gemma-ko-2b / LGAI-EXAONE/EXAONE-3.0-7.8B-Instruct / beomi/Qwen2.5-7B-Instruct-kowiki-qa-context"
-            "beomi/Solar-Ko-Recovery-11B"
-            "hungun/Qwen2.5-14B-Instruct-kowiki-qa"
-            "ludobico/gemma2_9b_it_1ep_kowiki"
-            "MLP-KTLim/llama-3-Korean-Bllossom-8B"
-            "lcw99/llama-3-10b-wiki-240709-f"
-        },
+        metadata={"help": "Path to pretrained model or model identifier from huggingface.co/models"},
     )
     quantization: bool = field(
         default=True,
@@ -45,13 +37,13 @@ class DataTrainingArguments:
     """
 
     # 학습 데이터 불러오기
-    train_dataset_name: str = field(
-        default="./resources/fold/fold_1_train.csv",
+    dataset_name: str = field(
+        default="./resources/merge/merge_dataset_20241125.csv",
         metadata={"help": "The name of the dataset to use."},
     )
     # 검증 데이터 불러오기
-    valid_dataset_name: str = field(
-        default="./resources/fold/fold_1_val.csv",
+    valid_dataset_name: Optional[str] = field(
+        default=None,
         metadata={"help": "The name of the dataset to use."},
     )
     # 토크나이저 설정
@@ -82,7 +74,7 @@ class OurTrainingArguments(SFTConfig):
         metadata={"help": "체크포인트와 모델 출력을 저장할 디렉터리 경로"},
     )
     max_seq_length: int = field(
-        default=3000, # 2048
+        default=3000,  # 2048
         metadata={
             "help": "The maximum total input sequence length after tokenization. Sequences longer "
             "than this will be truncated, sequences shorter will be padded."
@@ -156,7 +148,9 @@ class OurTrainingArguments(SFTConfig):
     # 모델 평가 관련
     metric_for_best_model: Optional[str] = field(
         default="eval_loss",
-        metadata={"help": "가장 좋은 모델을 평가하기 위한 메트릭 설정" "본 프로젝트에서는 eval_loss를 기본적으로 사용"},
+        metadata={
+            "help": "가장 좋은 모델을 평가하기 위한 메트릭 설정" "본 프로젝트에서는 eval_loss를 기본적으로 사용"
+        },
     )
     greater_is_better: bool = field(
         default=False,

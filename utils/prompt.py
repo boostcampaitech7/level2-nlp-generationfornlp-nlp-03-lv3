@@ -87,7 +87,8 @@ QWEN_CHAT_TEMPLETE_PLUS = """<|im_start|>system
 정답:<|im_end|>
 <|im_start|>assistant
 {}<|im_end|>"""
-# ----------------------------------------------------------------------------------------
+
+
 SOLAR_CHAT_TEMPLETE = """As a smart student, answer the given question in Korean. Read paragraph and information, select only one answer between given choices. Let's think step by step.<|im_start|>user
 지문: 
 {}
@@ -121,7 +122,8 @@ SOLAR_CHAT_TEMPLETE_PLUS = """As a smart student, answer the given question. Rea
 정답:<|im_end|>
 <|im_start|>assistant
 {}<|im_end|>"""
-# ----------------------------------------------------------------------------------------
+
+
 LLAMA2_CHAT_TEMPLETE = """<s>[INST] <<SYS>>
 As a smart student, answer the given question. Read paragraph and select only one answer between given choices. Let's think step by step.
 <</SYS>>
@@ -159,7 +161,8 @@ As a smart student, answer the given question. Read paragraph and select only on
 1, 2, 3, 4, 5 중에 하나를 정답으로 고르세요.
 정답:[/INST]
 {}</s>"""
-# ----------------------------------------------------------------------------------------
+
+
 LLAMA3_CHAT_TEMPLETE = """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 As a smart student, answer the given question. Read paragraph and select only one answer between given choices. Let's think step by step.<|eot_id|><|start_header_id|>user<|end_header_id|>
 지문:
@@ -196,7 +199,8 @@ As a smart student, answer the given question. Read paragraph and select only on
 정답:<|eot_id|>
 <|start_header_id|>assistant
 {}<|end_header_id|>"""
-# ----------------------------------------------------------------------------------------
+
+
 EXAONE_CHAT_TEMPLETE = """[|system|] 지문을 읽고 질문의 답을 구하세요.[|endofturn|]
 [|user|] 
 지문: 
@@ -232,4 +236,3 @@ EXAONE_CHAT_TEMPLETE_PLUS = """[|system|] 지문을 읽고 질문의 답을 구�
 정답:[|endofturn|]
 [|assistant|]
 {}[|endofturn|]"""
-# ----------------------------------------------------------------------------------------

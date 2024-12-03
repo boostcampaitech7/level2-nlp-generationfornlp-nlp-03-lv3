@@ -1,7 +1,6 @@
 # My custom
 lightning_logs/
 mlruns/
-resources/merge/
 database/bm25_model/
 resources/checkpoint/
 resources/outputs_gemma/
