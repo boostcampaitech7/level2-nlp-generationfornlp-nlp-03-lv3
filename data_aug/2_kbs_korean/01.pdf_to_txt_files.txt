@@ -1,0 +1,2 @@
+pdf2txt.py ../resources/aug/kbs_korean/01_1. 제68회 KBS한국어능력시험 시험지(홀수형).pdf > 68.txt
+pdf2txt.py ../resources/aug/kbs_korean/제54회_기출문제 > kbs_korean_54th.txt

@@ -1,0 +1,6 @@
+pip install "unsloth[cu124-torch250] @ git+https://github.com/unslothai/unsloth.git"
+apt-get install build-essential
+pip install unsloth==2024.11.7
+pip install unsloth-zoo==2024.11.5
+pip install uvloop==0.21.0
+pip install vllm==0.6.4.post1

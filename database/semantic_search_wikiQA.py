@@ -1,0 +1,65 @@
+import sys
+import pickle
+import argparse
+import numpy as np
+import pandas as pd
+from ast import literal_eval
+from datasets import load_from_disk
+
+sys.path.append("../")
+from model.bm25 import BM25SModel
+from transformers import AutoTokenizer
+
+
+def from_processed(dir: str):
+    df = pd.read_csv(dir)
+    df["choices_"] = [
+        "\n".join([f"{choice.strip()}" for idx, choice in enumerate(literal_eval(x))]) for x in df["choices"]
+    ]
+    return df
+
+
+def main(args):
+    # Load & preprocessing data
+    train_df = from_processed(args.train_data)
+    test_df = from_processed(args.test_data)
+    df = pd.concat([train_df, test_df])
+    print(len(df))
+    queries = []
+    for i, row in df.iterrows():
+        question = row["question"]
+        choices_ = row["choices_"]
+        paragraph = row["paragraph"]
+        queries.append(question * 3 + "\n" + paragraph + "\n" + choices_)
+    print(len(queries))
+
+    dataset = load_from_disk("../resources/kowikitext")
+    print(dataset)
+
+    # Load bm25 model.
+    tokenizer = AutoTokenizer.from_pretrained("beomi/Solar-Ko-Recovery-11B")
+    bm25_model = BM25SModel(tokenizer=tokenizer, bm25_dir=args.bm25_path)
+
+    # Retrieval.
+    print(">>> Get Scores")
+    top_k_indices = bm25_model.get_bm25_rank_scores(queries, topk=25)
+    print(">>> Check indices len")
+    print(len(top_k_indices))
+    top_k_indices = list(set(top_k_indices))
+    print(len(top_k_indices))
+    selected_data = dataset.select(top_k_indices)
+    selected_data.save_to_disk("../resources/selected_kowikitext")
+
+
+if __name__ == "__main__":
+    # fmt: off
+    parser = argparse.ArgumentParser(description="get topk-accuracy of retrieval model")
+    parser.add_argument("--train_data", type=str, default="../resources/raw/train_reformat.csv", help="Path of context pickle")
+    parser.add_argument("--test_data", type=str, default="../resources/raw/test_reformat.csv", help="Path of context pickle")
+    parser.add_argument("--context_path", type=str, default="./pickles/context_pickle.pkl", help="Path of context pickle")
+    parser.add_argument("--bm25_path", type=str, default="./bm25_model", help="Path of BM25 Model")
+    parser.add_argument("--search_k", default=2000, type=int, help="Number of retrieved documents")
+    args = parser.parse_args()
+    # fmt: on
+
+    main(args)
